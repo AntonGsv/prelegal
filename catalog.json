@@ -1,0 +1,63 @@
+{
+  "source": "CommonPaper",
+  "sourceUrl": "https://github.com/CommonPaper",
+  "license": "CC BY 4.0",
+  "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+  "templates": [
+    {
+      "filename": "AI-Addendum.md",
+      "name": "AI Addendum",
+      "description": "Standard terms for artificial intelligence and machine learning services, addressing AI-specific risks, model training, and output ownership."
+    },
+    {
+      "filename": "BAA.md",
+      "name": "Business Associate Agreement",
+      "description": "HIPAA-compliant agreement for business associates handling protected health information (PHI), including obligations, safeguards, and breach notification requirements."
+    },
+    {
+      "filename": "CSA.md",
+      "name": "Cloud Service Agreement",
+      "description": "Comprehensive agreement for cloud-based software-as-a-service products, covering access, usage, support, data rights, and liability."
+    },
+    {
+      "filename": "Design-Partner-Agreement.md",
+      "name": "Design Partner Agreement",
+      "description": "Agreement for early access design partner programs, including feedback obligations, intellectual property rights, and confidentiality terms."
+    },
+    {
+      "filename": "DPA.md",
+      "name": "Data Processing Agreement",
+      "description": "GDPR-compliant data processing agreement covering controller/processor relationships, subprocessor requirements, international transfers, and security incident response."
+    },
+    {
+      "filename": "Mutual-NDA.md",
+      "name": "Mutual Non-Disclosure Agreement",
+      "description": "Bilateral NDA for protecting confidential information shared during business discussions, partnerships, or transactions."
+    },
+    {
+      "filename": "Partnership-Agreement.md",
+      "name": "Partnership Agreement",
+      "description": "Agreement for partnership arrangements, covering obligations, payment terms, trademark licensing, and intellectual property rights."
+    },
+    {
+      "filename": "Pilot-Agreement.md",
+      "name": "Pilot Agreement",
+      "description": "Agreement for pilot programs allowing customers to evaluate a product before entering into a definitive agreement."
+    },
+    {
+      "filename": "PSA.md",
+      "name": "Professional Services Agreement",
+      "description": "Agreement for professional services engagements, covering deliverables, statements of work, payment terms, and intellectual property transfer."
+    },
+    {
+      "filename": "SLA.md",
+      "name": "Service Level Agreement",
+      "description": "Agreement defining service level commitments, uptime targets, response times, and remedies including service credits."
+    },
+    {
+      "filename": "Software-License-Agreement.md",
+      "name": "Software License Agreement",
+      "description": "Agreement for software licensing, covering license grants, restrictions, payment, updates, and termination terms."
+    }
+  ]
+}
