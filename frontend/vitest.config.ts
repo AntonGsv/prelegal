@@ -12,7 +12,11 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "."),
+      "@/lib/*": path.resolve(__dirname, "./src/lib/*"),
+      "@/types/*": path.resolve(__dirname, "./src/types/*"),
+      "@/components/*": path.resolve(__dirname, "./components/*"),
+      "@/components": path.resolve(__dirname, "./components"),
+      "@": path.resolve(__dirname, "./src"),
     },
   },
 });

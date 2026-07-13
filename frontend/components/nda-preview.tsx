@@ -1,9 +1,9 @@
 "use client";
 
 import { useFormContext } from "react-hook-form";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import type { NdaFormData } from "@/types/nda";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Separator } from "./ui/separator";
+import type { NdaFormData } from "../src/types/nda";
 
 export function NdaPreview() {
   const { watch } = useFormContext<NdaFormData>();

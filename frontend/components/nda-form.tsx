@@ -6,20 +6,20 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
-import { ndaFormSchema, type NdaFormData } from "@/lib/nda-schema";
-import { generateNdaPdf } from "@/lib/pdf-generator";
+import { ndaFormSchema, type NdaFormData } from "../src/lib/nda-schema";
+import { generateNdaPdf } from "../src/lib/pdf-generator";
 import { NdaPreview } from "./nda-preview";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { Separator } from "./ui/separator";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "./ui/card";
 
 const US_STATES = [
   "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado",

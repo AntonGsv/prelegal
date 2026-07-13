@@ -1,4 +1,4 @@
-import { NdaForm } from "@/components/nda-form";
+import { NdaForm } from "../../../../components/nda-form";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {

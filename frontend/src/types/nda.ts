@@ -1,1 +1,1 @@
-export type { NdaFormData } from "@/lib/nda-schema";
+export type { NdaFormData } from "../lib/nda-schema";
