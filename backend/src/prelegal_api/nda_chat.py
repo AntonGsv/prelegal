@@ -6,12 +6,22 @@ LiteLLM is imported lazily inside ``_completion`` so the module (and its tests,
 which mock the call) can be imported without the native LiteLLM stack present.
 """
 
+import logging
 from typing import Literal, Optional
 
 from pydantic import BaseModel, Field
 
+logger = logging.getLogger(__name__)
+
 MODEL = "openrouter/openai/gpt-oss-120b"
 EXTRA_BODY = {"provider": {"order": ["cerebras"]}}
+
+# The upstream LLM call can fail transiently (provider hiccup, rate limit, a
+# malformed structured-output payload). `num_retries` lets LiteLLM retry API
+# errors; the outer loop additionally covers empty/unparseable responses.
+REQUEST_TIMEOUT_SECONDS = 30
+LITELLM_NUM_RETRIES = 2
+MAX_ATTEMPTS = 2
 
 SYSTEM_PROMPT = """\
 You are a friendly legal assistant helping a user create a Mutual \
@@ -137,18 +147,41 @@ def _completion(**kwargs):
 
 
 def run_chat_turn(request: ChatRequest, api_key: str) -> ChatResponse:
-    """Run one conversation turn and return the reply plus extracted fields."""
+    """Run one conversation turn and return the reply plus extracted fields.
+
+    Retries transient upstream failures and empty/unparseable responses before
+    giving up, so a single provider hiccup doesn't surface as an error to the
+    user.
+    """
 
     messages = [{"role": "system", "content": SYSTEM_PROMPT}]
     messages += [{"role": m.role, "content": m.content} for m in request.messages]
 
-    response = _completion(
-        model=MODEL,
-        messages=messages,
-        response_format=ChatResponse,
-        reasoning_effort="low",
-        extra_body=EXTRA_BODY,
-        api_key=api_key or None,
-    )
-    content = response.choices[0].message.content
-    return ChatResponse.model_validate_json(content)
+    last_error: Exception | None = None
+    for attempt in range(1, MAX_ATTEMPTS + 1):
+        try:
+            response = _completion(
+                model=MODEL,
+                messages=messages,
+                response_format=ChatResponse,
+                reasoning_effort="low",
+                extra_body=EXTRA_BODY,
+                api_key=api_key or None,
+                num_retries=LITELLM_NUM_RETRIES,
+                timeout=REQUEST_TIMEOUT_SECONDS,
+            )
+            content = response.choices[0].message.content
+            if not content:
+                raise ValueError("LLM returned an empty response")
+            return ChatResponse.model_validate_json(content)
+        except Exception as exc:  # noqa: BLE001 - retried, then re-raised below
+            last_error = exc
+            logger.warning(
+                "NDA chat turn attempt %d/%d failed: %s",
+                attempt,
+                MAX_ATTEMPTS,
+                exc,
+            )
+
+    assert last_error is not None  # loop runs at least once
+    raise last_error

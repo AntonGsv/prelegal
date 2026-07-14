@@ -54,6 +54,38 @@ def test_run_chat_turn_forwards_prompt_and_parses(monkeypatch):
     assert result.fields.partyB_email is None
 
 
+def test_run_chat_turn_retries_transient_failure(monkeypatch):
+    calls = {"n": 0}
+
+    def flaky(**_):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            raise RuntimeError("transient upstream error")
+        return _FakeCompletionResponse(_fake_result_json("Recovered!"))
+
+    monkeypatch.setattr(nda_chat, "_completion", flaky)
+
+    result = run_chat_turn(
+        ChatRequest(messages=[ChatMessage(role="user", content="hi")]),
+        api_key="test-key",
+    )
+
+    assert result.reply == "Recovered!"
+    assert calls["n"] == 2  # first attempt failed, second succeeded
+
+
+def test_run_chat_turn_rejects_empty_content(monkeypatch):
+    monkeypatch.setattr(
+        nda_chat, "_completion", lambda **_: _FakeCompletionResponse("")
+    )
+
+    with pytest.raises(Exception):
+        run_chat_turn(
+            ChatRequest(messages=[ChatMessage(role="user", content="hi")]),
+            api_key="test-key",
+        )
+
+
 def test_chat_endpoint_returns_reply_and_fields(monkeypatch, configured_key):
     monkeypatch.setattr(
         nda_chat,

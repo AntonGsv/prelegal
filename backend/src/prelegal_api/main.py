@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 from typing import AsyncIterator
 
@@ -7,6 +8,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from .database import init_database
 from .nda_chat import ChatRequest, ChatResponse, run_chat_turn
 from .settings import get_settings
+
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -53,6 +56,7 @@ def nda_mutual_chat(request: ChatRequest) -> ChatResponse:
     try:
         return run_chat_turn(request, api_key)
     except Exception as exc:  # noqa: BLE001 - surface a clean 502 to the client
+        logger.exception("NDA chat turn failed")
         raise HTTPException(
             status_code=502, detail="The AI service failed to respond"
         ) from exc
