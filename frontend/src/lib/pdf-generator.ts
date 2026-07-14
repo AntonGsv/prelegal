@@ -1,5 +1,9 @@
 import { jsPDF } from "jspdf";
-import { renderCoverPage, STANDARD_TERMS } from "./nda-template";
+import {
+  renderCoverPage,
+  STANDARD_TERMS,
+  STANDARD_TERMS_PLACEHOLDERS,
+} from "./nda-template";
 import type { NdaFormData } from "./nda-schema";
 
 export function generateNdaPdf(data: NdaFormData): void {
@@ -17,13 +21,10 @@ export function generateNdaPdf(data: NdaFormData): void {
   renderCoverPage(doc, data);
 
   // Page 2+: Standard Terms with placeholder substitution
-  const termsText = STANDARD_TERMS
-    .replace(/State of Governing Law/g, data.governingLaw)
-    .replace(/Jurisdiction/g, data.jurisdiction)
-    .replace(/Effective Date/g, data.effectiveDate)
-    .replace(/MNDA Term/g, data.ndaTerm)
-    .replace(/Term of Confidentiality/g, data.confidentialityTerm)
-    .replace(/Purpose/g, data.purpose);
+  let termsText = STANDARD_TERMS;
+  for (const [pattern, field] of STANDARD_TERMS_PLACEHOLDERS) {
+    termsText = termsText.replace(pattern, data[field]);
+  }
 
   doc.addPage();
   doc.setFont("helvetica", "bold");

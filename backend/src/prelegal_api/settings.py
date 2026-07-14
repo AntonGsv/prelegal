@@ -1,5 +1,6 @@
 from functools import lru_cache
 
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -8,6 +9,10 @@ class Settings(BaseSettings):
 
     database_url: str = "file:./data/prelegal.db"
     cors_origins: str = "http://localhost:3000"
+
+    # OpenRouter key for the AI chat. It is conventionally set without the
+    # PRELEGAL_ prefix (see .env / docker-compose), so read the bare name.
+    openrouter_api_key: str = Field(default="", validation_alias="OPENROUTER_API_KEY")
 
     model_config = SettingsConfigDict(
         env_file=".env",

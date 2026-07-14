@@ -6,6 +6,10 @@ RUN npm ci
 FROM node:26-alpine AS builder
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
+# Baked into the browser bundle at build time; the browser reaches the backend
+# on the host-published port. Override via the compose build arg if needed.
+ARG NEXT_PUBLIC_API_URL=http://localhost:8000
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 COPY --from=deps /app/node_modules ./node_modules
 COPY frontend ./
 RUN npm run build
