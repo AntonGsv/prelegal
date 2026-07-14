@@ -8,10 +8,10 @@ ENV UV_COMPILE_BYTECODE=1 \
     PRELEGAL_DATABASE_URL=file:/app/data/prelegal.db \
     PRELEGAL_CORS_ORIGINS=http://localhost:3000
 
-COPY pyproject.toml README.md ./
+COPY pyproject.toml uv.lock README.md ./
 COPY src ./src
 
-RUN uv sync --no-dev --no-install-project
+RUN uv sync --frozen --no-dev --no-install-project
 
 RUN mkdir -p /app/data
 
