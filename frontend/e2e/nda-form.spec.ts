@@ -59,6 +59,12 @@ async function fillCompleteForm(page: Page) {
   await fillLegal(page);
 }
 
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    window.localStorage.setItem("prelegal.auth.loggedIn", "true");
+  });
+});
+
 test.describe("NDA Form Page", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/nda/mutual/create");

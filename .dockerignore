@@ -1,0 +1,15 @@
+.git
+.claude
+.env
+.env.*
+!.env.example
+**/node_modules
+**/.next
+**/playwright-report
+**/test-results
+**/__pycache__
+**/.pytest_cache
+**/.venv
+**/dist
+**/build
+frontend/Mutual-NDA.pdf
