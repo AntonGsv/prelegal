@@ -1,0 +1,1 @@
+"""Prelegal FastAPI backend package."""
