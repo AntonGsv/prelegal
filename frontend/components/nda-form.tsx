@@ -306,7 +306,7 @@ export function NdaForm() {
           </CardContent>
         </Card>
 
-        {/* Preview Section */}
+        {/* Preview Section - Right Column */}
         <NdaPreview />
       </div>
     </FormProvider>

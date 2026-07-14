@@ -23,7 +23,7 @@ export function NdaPreview() {
   };
 
   return (
-    <Card className="sticky top-4">
+    <Card className="sticky top-4" id="nda-preview-section">
       <CardHeader>
         <CardTitle className="text-lg font-semibold">Cover Page Preview</CardTitle>
       </CardHeader>

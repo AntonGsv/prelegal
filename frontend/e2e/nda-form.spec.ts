@@ -83,6 +83,23 @@ test.describe("NDA Form Page", () => {
     await expect(page.getByText("Cover Page Preview")).toBeVisible();
   });
 
+  test("should update preview with all form fields", async ({ page }) => {
+    // This test ensures NdaPreview is inside FormProvider
+    // If NdaPreview is outside FormProvider, useFormContext returns null and preview shows "Not set"
+
+    await page.fill('input[id="partyA_companyName"]', TEST_DATA.partyA.companyName);
+    await page.fill('input[id="partyB_companyName"]', TEST_DATA.partyB.companyName);
+    await page.fill('input[id="ndaTerm"]', TEST_DATA.terms.ndaTerm);
+    await page.fill('textarea[id="purpose"]', TEST_DATA.terms.purpose);
+
+    // Verify preview shows actual values, NOT "Not set"
+    // If "Not set" appears, it means NdaPreview is outside FormProvider
+    await expect(page.locator("#nda-preview-section").getByText(TEST_DATA.partyA.companyName)).toBeVisible();
+    await expect(page.locator("#nda-preview-section").getByText(TEST_DATA.partyB.companyName)).toBeVisible();
+    await expect(page.locator("#nda-preview-section").getByText(TEST_DATA.terms.ndaTerm)).toBeVisible();
+    await expect(page.locator("#nda-preview-section").getByText(TEST_DATA.terms.purpose)).toBeVisible();
+  });
+
   test("should show validation errors for empty required fields", async ({ page }) => {
     // Try to submit without filling anything
     await page.getByRole("button", { name: /Generate & Download PDF/i }).click();
