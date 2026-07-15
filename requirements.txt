@@ -1,0 +1,10 @@
+# Runtime dependencies for the Vercel Python (FastAPI) function at api/index.py.
+# Root-level so Vercel's Python builder (Root Directory = repo root) installs
+# them. Mirrors the runtime deps in backend/pyproject.toml; uvicorn is omitted
+# (Vercel serves the ASGI app itself). The local prelegal_api package is imported
+# from backend/src (bundled via includeFiles), not pip-installed.
+fastapi>=0.128.0
+pydantic>=2.13.4
+pydantic-settings>=2.12.0
+libsql-experimental>=0.0.55
+litellm>=1.92.0
