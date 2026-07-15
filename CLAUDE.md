@@ -8,7 +8,7 @@ The available documents are covered in the `catalog.json` file in the project ro
 
 @catalog.json
 
-Current state (through PL-4): a full-stack V1 foundation — Next.js frontend, FastAPI backend, libSQL database, and Docker Compose — with a cosmetic ("fake") login. It supports only the Mutual NDA document, via a form (no AI chat yet).
+Current state (through PL-5): a full-stack V1 foundation — Next.js frontend, FastAPI backend, libSQL database, and Docker Compose — with a cosmetic ("fake") login. It supports only the Mutual NDA document, now created via a **freeform AI chat**: the assistant asks about each field, extracts them from the conversation, and fills a live document preview. The user downloads the PDF once every field is collected. The old form flow has been replaced.
 
 ## Development process
 
@@ -62,6 +62,7 @@ Frontend at http://localhost:3000, backend at http://localhost:8000.
 backend/
 ├── src/prelegal_api/
 │   ├── main.py       # FastAPI app, routes, CORS
+│   ├── nda_chat.py   # AI chat: LiteLLM/Cerebras structured-output field extraction
 │   ├── database.py   # libSQL connect + users-table schema init
 │   └── settings.py   # Env-based config
 └── tests/            # pytest
@@ -70,20 +71,25 @@ frontend/
 │   ├── page.tsx      # Landing page
 │   ├── login/        # Fake login (sets localStorage flag)
 │   ├── dashboard/    # Signed-in home
-│   └── nda/mutual/create/  # NDA creation flow
-├── components/       # app-header, auth-gate, login-form + ui/ (shadcn)
-├── src/lib/          # Business logic (schema, template, PDF, auth)
+│   └── nda/mutual/create/  # NDA creation flow (AI chat)
+├── components/       # app-header, auth-gate, login-form, nda-chat, nda-document-preview + ui/ (shadcn)
+├── src/lib/          # Business logic (schema, template, PDF, auth, api-client)
 └── src/types/        # TypeScript types
 scripts/              # Start/stop scripts per platform
 docker-compose.yml    # frontend (:3000) + backend (:8000)
 ```
 
 ### Key Files
+- `frontend/components/nda-chat.tsx` — AI chat UI (messages, live preview, PDF download)
+- `frontend/components/nda-document-preview.tsx` — live document preview, fills as the chat progresses
+- `frontend/src/lib/api-client.ts` — frontend → backend client (`sendNdaChat`)
+- `frontend/src/lib/nda-chat-data.ts` — validates gathered fields against the NDA schema (completeness check)
 - `frontend/src/lib/nda-schema.ts` — Zod schema for NDA data
-- `frontend/src/lib/nda-template.ts` — NDA template engine
+- `frontend/src/lib/nda-template.ts` — NDA template engine + shared placeholder map
 - `frontend/src/lib/pdf-generator.ts` — PDF generation with jsPDF
 - `frontend/src/lib/auth-storage.ts` — fake-login localStorage flag (swappable for real auth)
-- `backend/src/prelegal_api/main.py` — FastAPI app & routes
+- `backend/src/prelegal_api/nda_chat.py` — AI chat logic (LiteLLM → OpenRouter → Cerebras, structured outputs)
+- `backend/src/prelegal_api/main.py` — FastAPI app & routes (`/api/health`, `/api/nda/mutual/chat`)
 - `backend/src/prelegal_api/database.py` — libSQL `users`-table init
 - `frontend/e2e/` — Playwright E2E tests
 

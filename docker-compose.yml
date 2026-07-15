@@ -6,6 +6,8 @@ services:
     environment:
       PRELEGAL_DATABASE_URL: file:/app/data/prelegal.db
       PRELEGAL_CORS_ORIGINS: http://localhost:3000
+      # Forwarded from the host environment / root .env (see .env.example).
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
     ports:
       - "8000:8000"
     volumes:
@@ -20,6 +22,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.frontend
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
     environment:
       NEXT_TELEMETRY_DISABLED: "1"
     ports:

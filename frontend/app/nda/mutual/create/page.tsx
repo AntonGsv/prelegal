@@ -1,4 +1,4 @@
-import { NdaForm } from "../../../../components/nda-form";
+import { NdaChat } from "../../../../components/nda-chat";
 import { AppHeader } from "../../../../components/app-header";
 import type { Metadata } from "next";
 
@@ -16,10 +16,10 @@ export default function CreateNdaPage() {
         <div className="mb-8">
           <h2 className="text-2xl font-bold">Create Mutual NDA</h2>
           <p className="text-muted-foreground">
-            Fill in the details below to generate your Mutual Non-Disclosure Agreement
+            Chat with our AI assistant to generate your Mutual Non-Disclosure Agreement
           </p>
         </div>
-        <NdaForm />
+        <NdaChat />
       </main>
     </div>
   );

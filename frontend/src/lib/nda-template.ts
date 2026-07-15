@@ -27,6 +27,22 @@ export const STANDARD_TERMS = `1. **Introduction**. This Mutual Non-Disclosure A
 
 Common Paper Mutual Non-Disclosure Agreement [Version 1.0](https://commonpaper.com/standards/mutual-nda/1.0/) free to use under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).`;
 
+/**
+ * Placeholder phrases in STANDARD_TERMS paired with the NdaFormData field each
+ * maps to. Order matters: no earlier pattern may match text produced by a later
+ * substitution. Shared by the PDF generator and the live preview so the two
+ * substitution passes can never drift apart.
+ */
+export const STANDARD_TERMS_PLACEHOLDERS: readonly [RegExp, keyof NdaFormData][] =
+  [
+    [/State of Governing Law/g, "governingLaw"],
+    [/Jurisdiction/g, "jurisdiction"],
+    [/Effective Date/g, "effectiveDate"],
+    [/MNDA Term/g, "ndaTerm"],
+    [/Term of Confidentiality/g, "confidentialityTerm"],
+    [/Purpose/g, "purpose"],
+  ];
+
 export function formatDate(dateString: string): string {
   if (!dateString) return "";
   const date = new Date(dateString);
