@@ -56,6 +56,11 @@ out/
 # Vercel
 .vercel/
 
+# Single-project deploy build artifact: the frontend static export copied into
+# the backend so the FastAPI function can serve the SPA (see vercel.json
+# buildCommand). Generated, never committed.
+backend/static/
+
 # Build outputs
 *.tsbuildinfo
 next-env.d.ts

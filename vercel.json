@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "cd frontend && npm install && STATIC_EXPORT=1 npm run build",
+  "buildCommand": "cd frontend && npm install && STATIC_EXPORT=1 npm run build && rm -rf ../backend/static && cp -r out ../backend/static",
   "outputDirectory": "frontend/out",
   "build": {
     "env": {
@@ -13,6 +13,6 @@
     }
   },
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/index" }
+    { "source": "/(.*)", "destination": "/api/index" }
   ]
 }
