@@ -12,7 +12,9 @@
       "includeFiles": "backend/**"
     }
   },
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/api/index" }
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/index" },
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "/api/index" }
   ]
 }
