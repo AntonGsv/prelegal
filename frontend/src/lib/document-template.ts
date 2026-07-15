@@ -39,19 +39,20 @@ export function substitutePlaceholders(
 
 /**
  * Produce the standard-terms body for display or PDF: substitute known
- * placeholder values and strip markdown bold markers. Shared by the live
- * preview and the PDF generator so the two can never clean the text differently.
+ * placeholder values, strip inline HTML tags (only the AI Addendum template
+ * uses them, e.g. `<span class="coverpage_link">`) and markdown bold markers.
+ * Shared by the live preview and the PDF generator so the two can never clean
+ * the text differently.
  */
 export function renderStandardTerms(
   config: DocumentConfig,
   templateBody: string,
   fields: Record<string, string | null | undefined>,
 ): string {
-  return substitutePlaceholders(
-    templateBody,
-    config.bodyPlaceholders,
-    fields,
-  ).replace(/\*\*/g, "");
+  return substitutePlaceholders(templateBody, config.bodyPlaceholders, fields)
+    .replace(/<[^>]+>/g, "") // strip inline HTML (AI Addendum span markup)
+    .replace(/\*\*/g, "") // strip markdown bold markers
+    .replace(/(\S)[^\S\n]{2,}/g, "$1 "); // collapse spaces left by removed tags
 }
 
 /**

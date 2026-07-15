@@ -5,6 +5,7 @@ import {
   substitutePlaceholders,
 } from "./document-template";
 import { getDocumentConfig } from "./document-registry";
+import { loadTemplateBody } from "./template-loader";
 
 describe("formatDate", () => {
   it("formats a valid date string", () => {
@@ -53,5 +54,20 @@ describe("renderStandardTerms", () => {
     const body = "The **State of Governing Law** applies. **Bold** text.";
     const out = renderStandardTerms(nda, body, { governingLaw: "California" });
     expect(out).toBe("The California applies. Bold text.");
+  });
+
+  it("strips inline HTML tags and collapses the spaces they leave", () => {
+    const body =
+      '1. <span class="header_2" id="1">AI Services</span>  The rest of it.';
+    expect(renderStandardTerms(nda, body, {})).toBe("1. AI Services The rest of it.");
+  });
+
+  it("leaves no raw HTML in the rendered AI Addendum body", () => {
+    const ai = getDocumentConfig("ai-addendum")!;
+    const body = loadTemplateBody(ai.catalogFilename);
+    const rendered = renderStandardTerms(ai, body, {});
+    expect(body).toContain("<span"); // sanity: the source really has HTML
+    expect(rendered).not.toMatch(/<[^>]+>/);
+    expect(rendered).toContain("AI Services");
   });
 });
