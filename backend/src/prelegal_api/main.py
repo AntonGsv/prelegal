@@ -61,6 +61,21 @@ app.add_middleware(
 )
 
 
+@app.middleware("http")
+async def no_store(request, call_next):
+    """Mark every API response uncacheable.
+
+    The JSON API is per-user and dynamic, so it must never be served from a CDN
+    cache. Without this, Vercel's edge can cache `/api/*` responses (including
+    CORS preflights), which then shadow the live function and break cross-origin
+    calls. `no-store` keeps responses out of the cache entirely.
+    """
+
+    response = await call_next(request)
+    response.headers["Cache-Control"] = "no-store"
+    return response
+
+
 @app.get("/api/health")
 def health() -> dict[str, str]:
     return {"status": "ok", "service": "prelegal-api"}
