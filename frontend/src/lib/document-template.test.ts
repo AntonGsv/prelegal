@@ -1,0 +1,73 @@
+import { describe, it, expect } from "vitest";
+import {
+  formatDate,
+  renderStandardTerms,
+  substitutePlaceholders,
+} from "./document-template";
+import { getDocumentConfig } from "./document-registry";
+import { loadTemplateBody } from "./template-loader";
+
+describe("formatDate", () => {
+  it("formats a valid date string", () => {
+    expect(formatDate("2024-01-15")).toBe("January 15, 2024");
+  });
+
+  it("handles single-digit day", () => {
+    expect(formatDate("2024-03-05")).toBe("March 5, 2024");
+  });
+
+  it("returns empty string for empty input", () => {
+    expect(formatDate("")).toBe("");
+  });
+});
+
+describe("substitutePlaceholders", () => {
+  const nda = getDocumentConfig("mutual-nda")!;
+
+  it("replaces known placeholder phrases with values", () => {
+    // The NDA's "State of Governing Law" phrase maps wholesale to the state
+    // name (parity with the original NDA template behavior).
+    const body = "Governed by the laws of the State of Governing Law.";
+    const out = substitutePlaceholders(body, nda.bodyPlaceholders, {
+      governingLaw: "California",
+    });
+    expect(out).toBe("Governed by the laws of the California.");
+  });
+
+  it("leaves phrases untouched when the value is missing", () => {
+    const body = "Effective Date and Purpose remain.";
+    const out = substitutePlaceholders(body, nda.bodyPlaceholders, {});
+    expect(out).toBe("Effective Date and Purpose remain.");
+  });
+
+  it("returns the body unchanged when there are no placeholders", () => {
+    const dpa = getDocumentConfig("dpa")!;
+    const body = "This body has no substitutions.";
+    expect(substitutePlaceholders(body, dpa.bodyPlaceholders, {})).toBe(body);
+  });
+});
+
+describe("renderStandardTerms", () => {
+  const nda = getDocumentConfig("mutual-nda")!;
+
+  it("substitutes values and strips markdown bold markers", () => {
+    const body = "The **State of Governing Law** applies. **Bold** text.";
+    const out = renderStandardTerms(nda, body, { governingLaw: "California" });
+    expect(out).toBe("The California applies. Bold text.");
+  });
+
+  it("strips inline HTML tags and collapses the spaces they leave", () => {
+    const body =
+      '1. <span class="header_2" id="1">AI Services</span>  The rest of it.';
+    expect(renderStandardTerms(nda, body, {})).toBe("1. AI Services The rest of it.");
+  });
+
+  it("leaves no raw HTML in the rendered AI Addendum body", () => {
+    const ai = getDocumentConfig("ai-addendum")!;
+    const body = loadTemplateBody(ai.catalogFilename);
+    const rendered = renderStandardTerms(ai, body, {});
+    expect(body).toContain("<span"); // sanity: the source really has HTML
+    expect(rendered).not.toMatch(/<[^>]+>/);
+    expect(rendered).toContain("AI Services");
+  });
+});

@@ -49,17 +49,16 @@ test.describe("Dashboard", () => {
     await page.goto("/dashboard");
   });
 
-  test("should show the product overview and CTA", async ({ page }) => {
+  test("should show the document gallery and freeform finder", async ({ page }) => {
     await expect(page.getByRole("heading", { name: /Legal Documents Made Simple/i })).toBeVisible();
-    await expect(page.getByText("Fill in Details")).toBeVisible();
-    await expect(page.getByText("Preview Document")).toBeVisible();
-    await expect(page.getByText("Download PDF")).toBeVisible();
-    await expect(page.getByRole("link", { name: /Get Started/i })).toBeVisible();
+    await expect(page.getByTestId("document-gallery")).toBeVisible();
+    await expect(page.getByTestId("finder-input")).toBeVisible();
+    await expect(page.getByTestId("doc-card-mutual-nda")).toBeVisible();
   });
 
-  test("should navigate to NDA creation page from dashboard", async ({ page }) => {
-    await page.getByRole("link", { name: /Get Started/i }).click();
-    await expect(page).toHaveURL(/\/nda\/mutual\/create/);
+  test("should navigate to a document creation page from the gallery", async ({ page }) => {
+    await page.getByTestId("doc-card-mutual-nda").click();
+    await expect(page).toHaveURL(/\/documents\/mutual-nda\/create/);
   });
 
   test("should sign out and return to login", async ({ page }) => {

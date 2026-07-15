@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
-import { Bot, Download, Loader2, Send, User } from "lucide-react";
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { Download, Loader2, Send } from "lucide-react";
 import { toast } from "sonner";
 
-import { NdaDocumentPreview } from "./nda-document-preview";
+import { DocumentPreview } from "./document-preview";
+import { MessageBubble, ThinkingBubble } from "./chat-bubbles";
 import { Button } from "./ui/button";
 import {
   Card,
@@ -13,27 +14,38 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
-import { sendNdaChat } from "../src/lib/api-client";
-import { toCompleteNdaData } from "../src/lib/nda-chat-data";
-import { generateNdaPdf } from "../src/lib/pdf-generator";
-import type { ChatMessage, PartialNdaData } from "../src/types/chat";
+import { sendDocumentChat } from "../src/lib/api-client";
+import { toCompleteDocumentData } from "../src/lib/document-chat-data";
+import { generateDocumentPdf } from "../src/lib/pdf-generator";
+import type { DocumentConfig } from "../src/lib/document-registry";
+import type { ChatMessage, PartialDocumentData } from "../src/types/chat";
 
-const GREETING: ChatMessage = {
-  role: "assistant",
-  content:
-    "Hi! I'll help you put together a Mutual NDA. To get started, what are " +
-    "the names of the two companies entering into this agreement?",
-};
+function buildGreeting(config: DocumentConfig): ChatMessage {
+  const [roleA, roleB] = config.partyRoles;
+  return {
+    role: "assistant",
+    content:
+      `Hi! I'll help you put together a ${config.shortName}. To get started, ` +
+      `who are the two parties involved (the ${roleA.label} and the ${roleB.label})?`,
+  };
+}
 
-export function NdaChat() {
-  const [messages, setMessages] = useState<ChatMessage[]>([GREETING]);
-  const [fields, setFields] = useState<PartialNdaData>({});
+export function DocumentChat({
+  config,
+  templateBody,
+}: {
+  config: DocumentConfig;
+  templateBody: string;
+}) {
+  const greeting = useMemo(() => buildGreeting(config), [config]);
+  const [messages, setMessages] = useState<ChatMessage[]>([greeting]);
+  const [fields, setFields] = useState<PartialDocumentData>({});
   const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const completeData = toCompleteNdaData(fields);
+  const completeData = toCompleteDocumentData(config, fields);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
@@ -49,7 +61,7 @@ export function NdaChat() {
     setIsSending(true);
 
     try {
-      const response = await sendNdaChat(nextMessages);
+      const response = await sendDocumentChat(config.slug, nextMessages);
       setMessages((prev) => [
         ...prev,
         { role: "assistant", content: response.reply },
@@ -75,7 +87,7 @@ export function NdaChat() {
     setIsGenerating(true);
     try {
       await new Promise((resolve) => setTimeout(resolve, 300));
-      generateNdaPdf(completeData);
+      generateDocumentPdf(config, templateBody, completeData);
       toast.success("PDF downloaded successfully!");
     } catch (error) {
       console.error("PDF generation failed:", error);
@@ -90,10 +102,10 @@ export function NdaChat() {
       {/* Chat Section */}
       <Card className="flex h-[75vh] flex-col">
         <CardHeader>
-          <CardTitle>NDA Assistant</CardTitle>
+          <CardTitle>{config.shortName} Assistant</CardTitle>
           <CardDescription>
-            Chat with the assistant to fill in your Mutual Non-Disclosure
-            Agreement. The document preview updates as you go.
+            Chat with the assistant to fill in your {config.name}. The document
+            preview updates as you go.
           </CardDescription>
         </CardHeader>
         <CardContent className="flex min-h-0 flex-1 flex-col gap-4">
@@ -111,7 +123,7 @@ export function NdaChat() {
           {completeData ? (
             <div className="rounded-md border border-[#753991]/30 bg-[#753991]/5 p-3">
               <p className="mb-2 text-sm font-medium">
-                All details collected — ready to generate your NDA.
+                All details collected — ready to generate your document.
               </p>
               <Button
                 className="w-full bg-[#753991] text-white hover:bg-[#753991]/90"
@@ -163,48 +175,11 @@ export function NdaChat() {
       </Card>
 
       {/* Live Document Preview */}
-      <NdaDocumentPreview fields={fields} />
-    </div>
-  );
-}
-
-function MessageBubble({ message }: { message: ChatMessage }) {
-  const isUser = message.role === "user";
-  return (
-    <div
-      className={`flex gap-2 ${isUser ? "flex-row-reverse" : "flex-row"}`}
-      data-testid={`message-${message.role}`}
-    >
-      <div
-        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
-          isUser ? "bg-[#209dd7] text-white" : "bg-[#032147] text-white"
-        }`}
-      >
-        {isUser ? <User className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
-      </div>
-      <div
-        className={`max-w-[80%] whitespace-pre-wrap rounded-lg px-3 py-2 text-sm ${
-          isUser
-            ? "bg-[#209dd7] text-white"
-            : "bg-muted text-foreground"
-        }`}
-      >
-        {message.content}
-      </div>
-    </div>
-  );
-}
-
-function ThinkingBubble() {
-  return (
-    <div className="flex gap-2" data-testid="thinking">
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#032147] text-white">
-        <Bot className="h-4 w-4" />
-      </div>
-      <div className="flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">
-        <Loader2 className="h-4 w-4 animate-spin" />
-        Thinking...
-      </div>
+      <DocumentPreview
+        config={config}
+        fields={fields}
+        templateBody={templateBody}
+      />
     </div>
   );
 }

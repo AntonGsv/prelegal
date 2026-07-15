@@ -1,12 +1,24 @@
 import { jsPDF } from "jspdf";
-import {
-  renderCoverPage,
-  STANDARD_TERMS,
-  STANDARD_TERMS_PLACEHOLDERS,
-} from "./nda-template";
-import type { NdaFormData } from "./nda-schema";
+import { renderCoverPage, renderStandardTerms } from "./document-template";
+import type { DocumentConfig } from "./document-registry";
+import type { DocumentData } from "./document-chat-data";
 
-export function generateNdaPdf(data: NdaFormData): void {
+/** The downloaded filename for a document, e.g. "Mutual-NDA.pdf". */
+export function pdfFilename(config: DocumentConfig): string {
+  return `${config.shortName.replace(/\s+/g, "-")}.pdf`;
+}
+
+/**
+ * Generate and download a PDF for any document: a synthesized cover page
+ * followed by the standard-terms body (with placeholder substitution). The
+ * body text comes from the document's `.md` template, passed in from the
+ * server component that read it.
+ */
+export function generateDocumentPdf(
+  config: DocumentConfig,
+  templateBody: string,
+  data: DocumentData,
+): void {
   const doc = new jsPDF({
     unit: "mm",
     format: "a4",
@@ -17,14 +29,11 @@ export function generateNdaPdf(data: NdaFormData): void {
   const margins = 25;
   const maxWidth = pageWidth - margins * 2;
 
-  // Page 1: Cover Page
-  renderCoverPage(doc, data);
+  // Page 1: synthesized cover page
+  renderCoverPage(doc, config, data);
 
-  // Page 2+: Standard Terms with placeholder substitution
-  let termsText = STANDARD_TERMS;
-  for (const [pattern, field] of STANDARD_TERMS_PLACEHOLDERS) {
-    termsText = termsText.replace(pattern, data[field]);
-  }
+  // Page 2+: standard terms with placeholder substitution
+  const termsText = renderStandardTerms(config, templateBody, data);
 
   doc.addPage();
   doc.setFont("helvetica", "bold");
@@ -50,6 +59,5 @@ export function generateNdaPdf(data: NdaFormData): void {
     y += lineHeight;
   }
 
-  // Save the PDF
-  doc.save("Mutual-NDA.pdf");
+  doc.save(pdfFilename(config));
 }
