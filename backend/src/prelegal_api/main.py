@@ -1,11 +1,9 @@
 import logging
 from contextlib import asynccontextmanager
-from pathlib import Path
 from typing import AsyncIterator, Optional
 
 from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 
 from . import auth as auth_module
 from . import document_history
@@ -186,14 +184,3 @@ def document_detect(request: DetectRequest) -> DetectResponse:
         raise HTTPException(
             status_code=502, detail="The AI service failed to respond"
         ) from exc
-
-
-# Serve the exported frontend (single-project deploy). Mounted LAST so the
-# `/api/*` routes above always take precedence over this catch-all. The static
-# bundle is the Next.js `output: "export"` build copied into `backend/static` by
-# the Vercel/Docker build. On Vercel all requests are rewritten to this function
-# (see the root `vercel.json`); static assets that exist are served by the CDN
-# first, and this mount serves the SPA HTML shell for the remaining routes.
-STATIC_DIR = Path(__file__).resolve().parent.parent.parent / "static"
-if STATIC_DIR.is_dir():
-    app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="static")

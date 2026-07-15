@@ -1,0 +1,10 @@
+# Runtime dependencies for the Vercel Python (FastAPI) backend project.
+# Vercel installs these; the local prelegal_api package is imported from src/
+# (not pip-installed). Mirrors the runtime deps in pyproject.toml; uvicorn is
+# omitted (Vercel serves the ASGI app itself). `.vercelignore` hides pyproject/
+# uv.lock so Vercel uses a plain `pip install -r` on this file.
+fastapi>=0.128.0
+pydantic>=2.13.4
+pydantic-settings>=2.12.0
+libsql-experimental>=0.0.55
+litellm>=1.92.0

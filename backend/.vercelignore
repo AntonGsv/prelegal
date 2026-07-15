@@ -1,0 +1,7 @@
+# Force Vercel's Python builder to install from requirements.txt (a plain
+# `pip install -r`, no project self-build) instead of the uv manifests. The repo
+# never installs itself (Docker uses `--no-install-project`; pyproject has no
+# [build-system]), so excluding these keeps the deploy predictable. Local
+# dev/Docker/uv are unaffected — the files stay in the repo, just not uploaded.
+pyproject.toml
+uv.lock

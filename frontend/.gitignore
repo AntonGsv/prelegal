@@ -35,10 +35,6 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
-# Opt-in: the production build's same-origin default. Holds only the public,
-# empty NEXT_PUBLIC_API_URL (no secrets) so the single-project Vercel deploy
-# works without a dashboard setting. See the file's comment.
-!.env.production
 
 # vercel
 .vercel

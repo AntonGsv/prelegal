@@ -1,0 +1,13 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "build": {
+    "env": {
+      "UV_PYTHON": "3.12"
+    }
+  },
+  "functions": {
+    "index.py": {
+      "maxDuration": 60
+    }
+  }
+}
