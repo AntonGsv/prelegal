@@ -3,7 +3,11 @@
 import type { ReactNode } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { formatDate, renderStandardTerms } from "../src/lib/document-template";
+import {
+  DRAFT_DISCLAIMER,
+  formatDate,
+  renderStandardTerms,
+} from "../src/lib/document-template";
 import {
   groupFields,
   partyFields,
@@ -47,9 +51,16 @@ export function DocumentPreview({
       </CardHeader>
       <CardContent>
         <div className="max-h-[70vh] overflow-y-auto rounded-md border bg-white p-6 text-sm leading-relaxed text-slate-900 shadow-inner">
-          <h1 className="mb-6 text-center text-base font-bold uppercase tracking-wide text-[#032147]">
+          <h1 className="mb-3 text-center text-base font-bold uppercase tracking-wide text-[#032147]">
             {config.name}
           </h1>
+
+          <p
+            className="mb-6 rounded border border-amber-300 bg-amber-50 px-3 py-2 text-center text-xs italic text-amber-800"
+            data-testid="draft-disclaimer"
+          >
+            {DRAFT_DISCLAIMER}
+          </p>
 
           {config.partyRoles.map((role) => (
             <Section key={role.key} title={role.label}>

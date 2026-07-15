@@ -4,11 +4,11 @@ import Link from "next/link";
 import { AuthForm } from "../../components/auth-form";
 
 export const metadata: Metadata = {
-  title: "Sign in - Prelegal",
-  description: "Sign in to continue to the Prelegal platform.",
+  title: "Create your account - Prelegal",
+  description: "Create a Prelegal account to generate legal documents.",
 };
 
-export default function LoginPage() {
+export default function SignupPage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-slate-50 to-slate-100 px-4 py-12 dark:from-slate-950 dark:to-slate-900">
       <Link href="/" className="mb-8 text-center">
@@ -19,7 +19,7 @@ export default function LoginPage() {
           Legal documents made simple
         </p>
       </Link>
-      <AuthForm mode="login" />
+      <AuthForm mode="signup" />
     </div>
   );
 }

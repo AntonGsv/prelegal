@@ -6,6 +6,9 @@ services:
     environment:
       PRELEGAL_DATABASE_URL: file:/app/data/prelegal.db
       PRELEGAL_CORS_ORIGINS: http://localhost:3000
+      # Signs session tokens (PL-7). Override in production so tokens are not
+      # forgeable; the default keeps local `docker compose up` working.
+      PRELEGAL_SESSION_SECRET: ${PRELEGAL_SESSION_SECRET:-prelegal-dev-session-secret-change-me}
       # Forwarded from the host environment / root .env (see .env.example).
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
     ports:

@@ -2,44 +2,107 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { LogOut } from "lucide-react";
+import { FileText, FolderClock, LogOut } from "lucide-react";
 
 import { Button } from "./ui/button";
-import { signOut } from "../src/lib/auth-storage";
+import { Avatar, AvatarFallback } from "./ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
+import { ThemeToggle } from "./theme-toggle";
+import { clearSession } from "../src/lib/auth-storage";
+import { useAuthUser } from "../src/lib/use-auth";
+
+function initialsFor(user: { displayName: string | null; email: string }): string {
+  const source = user.displayName?.trim() || user.email;
+  const parts = source.split(/[\s@._-]+/).filter(Boolean);
+  const letters = parts.slice(0, 2).map((part) => part[0]);
+  return (letters.join("") || source[0] || "?").toUpperCase();
+}
 
 /**
- * Shared header used by the post-login pages. Mirrors the visual language of
- * the original landing header (brand wordmark + nav), and adds a Sign Out
- * control. This is intentionally a client component because Sign Out mutates
- * `localStorage` and routes back to `/login`.
+ * Shared header for the signed-in app: brand wordmark, a "New document" action,
+ * a theme toggle, and an account menu (email + links to history and sign out).
  */
 export function AppHeader() {
   const router = useRouter();
+  const user = useAuthUser();
 
   const handleSignOut = () => {
-    signOut();
+    clearSession();
     router.replace("/login");
   };
 
   return (
-    <header className="border-b bg-white/80 backdrop-blur-sm dark:bg-slate-900/80">
+    <header className="sticky top-0 z-40 border-b bg-white/80 backdrop-blur-sm dark:bg-slate-950/80">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <Link href="/dashboard" className="text-xl font-bold">
+        <Link
+          href="/dashboard"
+          className="text-xl font-bold text-brand-navy dark:text-white"
+        >
           Prelegal
         </Link>
-        <nav className="flex items-center gap-3">
+        <nav className="flex items-center gap-2">
           <Link href="/dashboard">
             <Button variant="outline">New document</Button>
           </Link>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleSignOut}
-            aria-label="Sign out"
-            data-testid="sign-out"
-          >
-            <LogOut className="h-4 w-4" />
-          </Button>
+          <ThemeToggle />
+
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <button
+                  type="button"
+                  aria-label="Account menu"
+                  data-testid="account-menu"
+                  className="rounded-full outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+                />
+              }
+            >
+              <Avatar>
+                <AvatarFallback>
+                  {user ? initialsFor(user) : "?"}
+                </AvatarFallback>
+              </Avatar>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuLabel className="truncate">
+                {user?.displayName || user?.email || "Account"}
+              </DropdownMenuLabel>
+              {user?.displayName && (
+                <p className="truncate px-2 pb-1 text-xs text-muted-foreground">
+                  {user.email}
+                </p>
+              )}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                render={<Link href="/history" data-testid="nav-history" />}
+              >
+                <FolderClock className="h-4 w-4" />
+                My documents
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                render={<Link href="/dashboard" />}
+              >
+                <FileText className="h-4 w-4" />
+                New document
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={handleSignOut}
+                data-testid="sign-out"
+                className="text-destructive focus:text-destructive"
+              >
+                <LogOut className="h-4 w-4" />
+                Sign out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </nav>
       </div>
     </header>

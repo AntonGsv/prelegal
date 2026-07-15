@@ -68,10 +68,10 @@ export function DocumentFinder() {
     : undefined;
 
   return (
-    <Card className="border-[#209dd7]/30 bg-[#209dd7]/5">
+    <Card className="ring-brand-blue/30 bg-brand-blue/5">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-lg text-[#032147]">
-          <Sparkles className="h-5 w-5 text-[#ecad0a]" />
+        <CardTitle className="flex items-center gap-2 text-lg text-brand-navy dark:text-white">
+          <Sparkles className="h-5 w-5 text-brand-yellow" />
           Not sure which document you need?
         </CardTitle>
         <CardDescription>
@@ -94,7 +94,6 @@ export function DocumentFinder() {
           <Button
             onClick={() => void detect()}
             disabled={isDetecting || input.trim() === ""}
-            className="bg-[#209dd7] text-white hover:bg-[#209dd7]/90"
             data-testid="finder-submit"
           >
             {isDetecting ? (
@@ -107,10 +106,10 @@ export function DocumentFinder() {
 
         {suggestion && (
           <div
-            className="rounded-md border bg-white p-3 text-sm"
+            className="rounded-md border bg-card p-3 text-sm"
             data-testid="finder-suggestion"
           >
-            <p className="whitespace-pre-wrap text-slate-700">{suggestion.reply}</p>
+            <p className="whitespace-pre-wrap text-foreground">{suggestion.reply}</p>
             {suggested && (
               <Link href={`/documents/${suggested.slug}/create`}>
                 <Button
