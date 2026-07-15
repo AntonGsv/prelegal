@@ -1,0 +1,338 @@
+[
+  {
+    "slug": "mutual-nda",
+    "catalogFilename": "Mutual-NDA.md",
+    "name": "Mutual Non-Disclosure Agreement",
+    "shortName": "Mutual NDA",
+    "description": "Bilateral NDA for protecting confidential information shared during business discussions, partnerships, or transactions.",
+    "systemPromptIntro": "You are a friendly legal assistant helping a user create a Mutual Non-Disclosure Agreement (MNDA) between two parties (Party A and Party B, both mutual disclosing parties). Instead of a form, you collect the required details through a natural, freeform conversation.",
+    "partyRoles": [
+      { "key": "partyA", "label": "Party A" },
+      { "key": "partyB", "label": "Party B" }
+    ],
+    "fields": [
+      { "key": "partyA_companyName", "label": "Company", "group": "party:partyA", "kind": "text", "required": true, "promptHint": "Party A company/legal name" },
+      { "key": "partyA_address", "label": "Address", "group": "party:partyA", "kind": "text", "required": true, "promptHint": "Party A full mailing address" },
+      { "key": "partyA_representative", "label": "Representative", "group": "party:partyA", "kind": "text", "required": true, "promptHint": "Name of the person signing for Party A" },
+      { "key": "partyA_email", "label": "Email", "group": "party:partyA", "kind": "email", "required": true, "promptHint": "Party A contact email address" },
+      { "key": "partyB_companyName", "label": "Company", "group": "party:partyB", "kind": "text", "required": true, "promptHint": "Party B company/legal name" },
+      { "key": "partyB_address", "label": "Address", "group": "party:partyB", "kind": "text", "required": true, "promptHint": "Party B full mailing address" },
+      { "key": "partyB_representative", "label": "Representative", "group": "party:partyB", "kind": "text", "required": true, "promptHint": "Name of the person signing for Party B" },
+      { "key": "partyB_email", "label": "Email", "group": "party:partyB", "kind": "email", "required": true, "promptHint": "Party B contact email address" },
+      { "key": "effectiveDate", "label": "Effective Date", "group": "terms", "kind": "date", "required": true, "promptHint": "Effective date in YYYY-MM-DD format" },
+      { "key": "ndaTerm", "label": "Term", "group": "terms", "kind": "text", "required": true, "promptHint": "Duration of the agreement, e.g. '2 years'" },
+      { "key": "confidentialityTerm", "label": "Confidentiality Term", "group": "terms", "kind": "text", "required": true, "promptHint": "How long confidentiality survives, e.g. '3 years'" },
+      { "key": "purpose", "label": "Purpose", "group": "terms", "kind": "longtext", "required": true, "minLength": 10, "promptHint": "Why confidential information is being shared (>= 10 chars)" },
+      { "key": "governingLaw", "label": "Governing Law", "group": "legal", "kind": "text", "required": true, "promptHint": "Full U.S. state name whose law governs" },
+      { "key": "jurisdiction", "label": "Jurisdiction", "group": "legal", "kind": "text", "required": true, "promptHint": "Courts/location where disputes are handled" }
+    ],
+    "bodyPlaceholders": [
+      { "pattern": "State of Governing Law", "field": "governingLaw" },
+      { "pattern": "Jurisdiction", "field": "jurisdiction" },
+      { "pattern": "Effective Date", "field": "effectiveDate" },
+      { "pattern": "MNDA Term", "field": "ndaTerm" },
+      { "pattern": "Term of Confidentiality", "field": "confidentialityTerm" },
+      { "pattern": "Purpose", "field": "purpose" }
+    ]
+  },
+  {
+    "slug": "design-partner-agreement",
+    "catalogFilename": "Design-Partner-Agreement.md",
+    "name": "Design Partner Agreement",
+    "shortName": "Design Partner Agreement",
+    "description": "Agreement for early access design partner programs, including feedback obligations, intellectual property rights, and confidentiality terms.",
+    "systemPromptIntro": "You are a friendly legal assistant helping a user create a Design Partner Agreement between a Provider and a Partner, giving the Partner early access to a product in exchange for feedback. You collect the required details through a natural, freeform conversation.",
+    "partyRoles": [
+      { "key": "partyA", "label": "Provider" },
+      { "key": "partyB", "label": "Partner" }
+    ],
+    "fields": [
+      { "key": "partyA_companyName", "label": "Company", "group": "party:partyA", "kind": "text", "required": true, "promptHint": "Provider company/legal name" },
+      { "key": "partyA_address", "label": "Address", "group": "party:partyA", "kind": "text", "required": true, "promptHint": "Provider full mailing address" },
+      { "key": "partyA_representative", "label": "Representative", "group": "party:partyA", "kind": "text", "required": true, "promptHint": "Name of the person signing for the Provider" },
+      { "key": "partyA_email", "label": "Email", "group": "party:partyA", "kind": "email", "required": true, "promptHint": "Provider contact email address" },
+      { "key": "partyB_companyName", "label": "Company", "group": "party:partyB", "kind": "text", "required": true, "promptHint": "Partner company/legal name" },
+      { "key": "partyB_address", "label": "Address", "group": "party:partyB", "kind": "text", "required": true, "promptHint": "Partner full mailing address" },
+      { "key": "partyB_representative", "label": "Representative", "group": "party:partyB", "kind": "text", "required": true, "promptHint": "Name of the person signing for the Partner" },
+      { "key": "partyB_email", "label": "Email", "group": "party:partyB", "kind": "email", "required": true, "promptHint": "Partner contact email address" },
+      { "key": "effectiveDate", "label": "Effective Date", "group": "terms", "kind": "date", "required": true, "promptHint": "Effective date in YYYY-MM-DD format" },
+      { "key": "term", "label": "Term", "group": "terms", "kind": "text", "required": true, "promptHint": "How long the program runs, e.g. '6 months'" },
+      { "key": "productDescription", "label": "Product", "group": "terms", "kind": "longtext", "required": true, "minLength": 10, "promptHint": "Description of the Product the Partner gets early access to" },
+      { "key": "fees", "label": "Fees", "group": "terms", "kind": "text", "required": true, "promptHint": "Fees the Partner pays, if any (e.g. 'None' or '$5,000')" },
+      { "key": "governingLaw", "label": "Governing Law", "group": "legal", "kind": "text", "required": true, "promptHint": "Full U.S. state name whose law governs" },
+      { "key": "jurisdiction", "label": "Chosen Courts", "group": "legal", "kind": "text", "required": true, "promptHint": "Courts/location where disputes are handled" }
+    ],
+    "bodyPlaceholders": []
+  },
+  {
+    "slug": "pilot-agreement",
+    "catalogFilename": "Pilot-Agreement.md",
+    "name": "Pilot Agreement",
+    "shortName": "Pilot Agreement",
+    "description": "Agreement for pilot programs allowing customers to evaluate a product before entering into a definitive agreement.",
+    "systemPromptIntro": "You are a friendly legal assistant helping a user create a Pilot Agreement between a Provider and a Customer, letting the Customer evaluate a product for a limited pilot period. You collect the required details through a natural, freeform conversation.",
+    "partyRoles": [
+      { "key": "partyA", "label": "Provider" },
+      { "key": "partyB", "label": "Customer" }
+    ],
+    "fields": [
+      { "key": "partyA_companyName", "label": "Company", "group": "party:partyA", "kind": "text", "required": true, "promptHint": "Provider company/legal name" },
+      { "key": "partyA_address", "label": "Address", "group": "party:partyA", "kind": "text", "required": true, "promptHint": "Provider full mailing address" },
+      { "key": "partyA_representative", "label": "Representative", "group": "party:partyA", "kind": "text", "required": true, "promptHint": "Name of the person signing for the Provider" },
+      { "key": "partyA_email", "label": "Email", "group": "party:partyA", "kind": "email", "required": true, "promptHint": "Provider contact email address" },
+      { "key": "partyB_companyName", "label": "Company", "group": "party:partyB", "kind": "text", "required": true, "promptHint": "Customer company/legal name" },
+      { "key": "partyB_address", "label": "Address", "group": "party:partyB", "kind": "text", "required": true, "promptHint": "Customer full mailing address" },
+      { "key": "partyB_representative", "label": "Representative", "group": "party:partyB", "kind": "text", "required": true, "promptHint": "Name of the person signing for the Customer" },
+      { "key": "partyB_email", "label": "Email", "group": "party:partyB", "kind": "email", "required": true, "promptHint": "Customer contact email address" },
+      { "key": "effectiveDate", "label": "Effective Date", "group": "terms", "kind": "date", "required": true, "promptHint": "Effective date in YYYY-MM-DD format" },
+      { "key": "pilotPeriod", "label": "Pilot Period", "group": "terms", "kind": "text", "required": true, "promptHint": "Length of the pilot/evaluation period, e.g. '60 days'" },
+      { "key": "productDescription", "label": "Product", "group": "terms", "kind": "longtext", "required": true, "minLength": 10, "promptHint": "Description of the Product being evaluated" },
+      { "key": "evaluationPurpose", "label": "Evaluation Purpose", "group": "terms", "kind": "longtext", "required": true, "minLength": 10, "promptHint": "What the Customer is evaluating the Product for" },
+      { "key": "liabilityCap", "label": "Liability Cap", "group": "terms", "kind": "text", "required": true, "promptHint": "General liability cap amount, e.g. 'fees paid' or '$10,000'" },
+      { "key": "governingLaw", "label": "Governing Law", "group": "legal", "kind": "text", "required": true, "promptHint": "Full U.S. state name whose law governs" },
+      { "key": "jurisdiction", "label": "Chosen Courts", "group": "legal", "kind": "text", "required": true, "promptHint": "Courts/location where disputes are handled" }
+    ],
+    "bodyPlaceholders": []
+  },
+  {
+    "slug": "baa",
+    "catalogFilename": "BAA.md",
+    "name": "Business Associate Agreement",
+    "shortName": "BAA",
+    "description": "HIPAA-compliant agreement for business associates handling protected health information (PHI), including obligations, safeguards, and breach notification requirements.",
+    "systemPromptIntro": "You are a friendly legal assistant helping a user create a HIPAA Business Associate Agreement between a Business Associate (the service provider) and a Covered Entity (the customer). You collect the required details through a natural, freeform conversation.",
+    "partyRoles": [
+      { "key": "partyA", "label": "Business Associate" },
+      { "key": "partyB", "label": "Covered Entity" }
+    ],
+    "fields": [
+      { "key": "partyA_companyName", "label": "Company", "group": "party:partyA", "kind": "text", "required": true, "promptHint": "Business Associate company/legal name" },
+      { "key": "partyA_address", "label": "Address", "group": "party:partyA", "kind": "text", "required": true, "promptHint": "Business Associate full mailing address" },
+      { "key": "partyA_representative", "label": "Representative", "group": "party:partyA", "kind": "text", "required": true, "promptHint": "Name of the person signing for the Business Associate" },
+      { "key": "partyA_email", "label": "Email", "group": "party:partyA", "kind": "email", "required": true, "promptHint": "Business Associate contact email address" },
+      { "key": "partyB_companyName", "label": "Company", "group": "party:partyB", "kind": "text", "required": true, "promptHint": "Covered Entity company/legal name" },
+      { "key": "partyB_address", "label": "Address", "group": "party:partyB", "kind": "text", "required": true, "promptHint": "Covered Entity full mailing address" },
+      { "key": "partyB_representative", "label": "Representative", "group": "party:partyB", "kind": "text", "required": true, "promptHint": "Name of the person signing for the Covered Entity" },
+      { "key": "partyB_email", "label": "Email", "group": "party:partyB", "kind": "email", "required": true, "promptHint": "Covered Entity contact email address" },
+      { "key": "effectiveDate", "label": "Effective Date", "group": "terms", "kind": "date", "required": true, "promptHint": "BAA effective date in YYYY-MM-DD format" },
+      { "key": "underlyingAgreement", "label": "Underlying Agreement", "group": "terms", "kind": "text", "required": true, "promptHint": "The underlying agreement this BAA supports, e.g. 'Cloud Service Agreement dated 2026-01-01'" },
+      { "key": "breachNotificationPeriod", "label": "Breach Notification Period", "group": "terms", "kind": "text", "required": true, "promptHint": "Time to notify of a breach, e.g. '30 days'" },
+      { "key": "permittedUses", "label": "Permitted Uses & Limitations", "group": "terms", "kind": "longtext", "required": true, "minLength": 10, "promptHint": "Permitted uses of PHI and any limitations (offshoring, de-identification, aggregation) — free text" },
+      { "key": "governingLaw", "label": "Governing Law", "group": "legal", "kind": "text", "required": true, "promptHint": "Full U.S. state name whose law governs" },
+      { "key": "jurisdiction", "label": "Jurisdiction", "group": "legal", "kind": "text", "required": true, "promptHint": "Courts/location where disputes are handled" }
+    ],
+    "bodyPlaceholders": []
+  },
+  {
+    "slug": "csa",
+    "catalogFilename": "CSA.md",
+    "name": "Cloud Service Agreement",
+    "shortName": "Cloud Service Agreement",
+    "description": "Comprehensive agreement for cloud-based software-as-a-service products, covering access, usage, support, data rights, and liability.",
+    "systemPromptIntro": "You are a friendly legal assistant helping a user create a Cloud Service Agreement between a Provider and a Customer for a subscription SaaS product. You collect the required details through a natural, freeform conversation.",
+    "partyRoles": [
+      { "key": "partyA", "label": "Provider" },
+      { "key": "partyB", "label": "Customer" }
+    ],
+    "fields": [
+      { "key": "partyA_companyName", "label": "Company", "group": "party:partyA", "kind": "text", "required": true, "promptHint": "Provider company/legal name" },
+      { "key": "partyA_address", "label": "Address", "group": "party:partyA", "kind": "text", "required": true, "promptHint": "Provider full mailing address" },
+      { "key": "partyA_representative", "label": "Representative", "group": "party:partyA", "kind": "text", "required": true, "promptHint": "Name of the person signing for the Provider" },
+      { "key": "partyA_email", "label": "Email", "group": "party:partyA", "kind": "email", "required": true, "promptHint": "Provider contact email address" },
+      { "key": "partyB_companyName", "label": "Company", "group": "party:partyB", "kind": "text", "required": true, "promptHint": "Customer company/legal name" },
+      { "key": "partyB_address", "label": "Address", "group": "party:partyB", "kind": "text", "required": true, "promptHint": "Customer full mailing address" },
+      { "key": "partyB_representative", "label": "Representative", "group": "party:partyB", "kind": "text", "required": true, "promptHint": "Name of the person signing for the Customer" },
+      { "key": "partyB_email", "label": "Email", "group": "party:partyB", "kind": "email", "required": true, "promptHint": "Customer contact email address" },
+      { "key": "effectiveDate", "label": "Effective Date", "group": "terms", "kind": "date", "required": true, "promptHint": "Effective date in YYYY-MM-DD format" },
+      { "key": "subscriptionPeriod", "label": "Subscription Period", "group": "terms", "kind": "text", "required": true, "promptHint": "Subscription period, e.g. '12 months'" },
+      { "key": "cloudServiceDescription", "label": "Cloud Service", "group": "terms", "kind": "longtext", "required": true, "minLength": 10, "promptHint": "Description of the Cloud Service being provided" },
+      { "key": "fees", "label": "Fees & Payment", "group": "terms", "kind": "longtext", "required": true, "minLength": 10, "promptHint": "Fees and payment terms (free text)" },
+      { "key": "supportDescription", "label": "Technical Support", "group": "terms", "kind": "longtext", "required": true, "minLength": 10, "promptHint": "Technical support commitments (free text)" },
+      { "key": "liabilityCap", "label": "Liability Cap", "group": "terms", "kind": "text", "required": true, "promptHint": "General liability cap amount, e.g. 'fees paid in the prior 12 months'" },
+      { "key": "governingLaw", "label": "Governing Law", "group": "legal", "kind": "text", "required": true, "promptHint": "Full U.S. state name whose law governs" },
+      { "key": "jurisdiction", "label": "Chosen Courts", "group": "legal", "kind": "text", "required": true, "promptHint": "Courts/location where disputes are handled" }
+    ],
+    "bodyPlaceholders": []
+  },
+  {
+    "slug": "dpa",
+    "catalogFilename": "DPA.md",
+    "name": "Data Processing Agreement",
+    "shortName": "DPA",
+    "description": "GDPR-compliant data processing agreement covering controller/processor relationships, subprocessor requirements, international transfers, and security incident response.",
+    "systemPromptIntro": "You are a friendly legal assistant helping a user create a Data Processing Agreement between a Provider (the data Processor) and a Customer (the data Controller). You collect the required details through a natural, freeform conversation.",
+    "partyRoles": [
+      { "key": "partyA", "label": "Provider" },
+      { "key": "partyB", "label": "Customer" }
+    ],
+    "fields": [
+      { "key": "partyA_companyName", "label": "Company", "group": "party:partyA", "kind": "text", "required": true, "promptHint": "Provider (Processor) company/legal name" },
+      { "key": "partyA_address", "label": "Address", "group": "party:partyA", "kind": "text", "required": true, "promptHint": "Provider full mailing address" },
+      { "key": "partyA_representative", "label": "Representative", "group": "party:partyA", "kind": "text", "required": true, "promptHint": "Name of the person signing for the Provider" },
+      { "key": "partyA_email", "label": "Email", "group": "party:partyA", "kind": "email", "required": true, "promptHint": "Provider contact email address" },
+      { "key": "partyB_companyName", "label": "Company", "group": "party:partyB", "kind": "text", "required": true, "promptHint": "Customer (Controller) company/legal name" },
+      { "key": "partyB_address", "label": "Address", "group": "party:partyB", "kind": "text", "required": true, "promptHint": "Customer full mailing address" },
+      { "key": "partyB_representative", "label": "Representative", "group": "party:partyB", "kind": "text", "required": true, "promptHint": "Name of the person signing for the Customer" },
+      { "key": "partyB_email", "label": "Email", "group": "party:partyB", "kind": "email", "required": true, "promptHint": "Customer contact email address" },
+      { "key": "effectiveDate", "label": "Effective Date", "group": "terms", "kind": "date", "required": true, "promptHint": "Effective date in YYYY-MM-DD format" },
+      { "key": "processingDescription", "label": "Nature of Processing", "group": "terms", "kind": "longtext", "required": true, "minLength": 10, "promptHint": "Subject matter, nature, purpose and duration of processing; categories of personal data and data subjects (free text)" },
+      { "key": "approvedSubprocessors", "label": "Approved Subprocessors", "group": "terms", "kind": "longtext", "required": true, "minLength": 1, "promptHint": "List of approved subprocessors, their locations, and processing tasks — or 'none' (free text)" },
+      { "key": "securityMeasures", "label": "Security Measures", "group": "terms", "kind": "longtext", "required": true, "minLength": 10, "promptHint": "Technical and organizational security measures (free text)" },
+      { "key": "governingLaw", "label": "Governing Law", "group": "legal", "kind": "text", "required": true, "promptHint": "Full U.S. state name (or country) whose law governs" },
+      { "key": "jurisdiction", "label": "Jurisdiction", "group": "legal", "kind": "text", "required": true, "promptHint": "Courts/location where disputes are handled" }
+    ],
+    "bodyPlaceholders": []
+  },
+  {
+    "slug": "partnership-agreement",
+    "catalogFilename": "Partnership-Agreement.md",
+    "name": "Partnership Agreement",
+    "shortName": "Partnership Agreement",
+    "description": "Agreement for partnership arrangements, covering obligations, payment terms, trademark licensing, and intellectual property rights.",
+    "systemPromptIntro": "You are a friendly legal assistant helping a user create a Partnership Agreement between a Company and a Partner, covering obligations, payment, and trademark licensing. You collect the required details through a natural, freeform conversation.",
+    "partyRoles": [
+      { "key": "partyA", "label": "Company" },
+      { "key": "partyB", "label": "Partner" }
+    ],
+    "fields": [
+      { "key": "partyA_companyName", "label": "Company", "group": "party:partyA", "kind": "text", "required": true, "promptHint": "Company legal name" },
+      { "key": "partyA_address", "label": "Address", "group": "party:partyA", "kind": "text", "required": true, "promptHint": "Company full mailing address" },
+      { "key": "partyA_representative", "label": "Representative", "group": "party:partyA", "kind": "text", "required": true, "promptHint": "Name of the person signing for the Company" },
+      { "key": "partyA_email", "label": "Email", "group": "party:partyA", "kind": "email", "required": true, "promptHint": "Company contact email address" },
+      { "key": "partyB_companyName", "label": "Company", "group": "party:partyB", "kind": "text", "required": true, "promptHint": "Partner company/legal name" },
+      { "key": "partyB_address", "label": "Address", "group": "party:partyB", "kind": "text", "required": true, "promptHint": "Partner full mailing address" },
+      { "key": "partyB_representative", "label": "Representative", "group": "party:partyB", "kind": "text", "required": true, "promptHint": "Name of the person signing for the Partner" },
+      { "key": "partyB_email", "label": "Email", "group": "party:partyB", "kind": "email", "required": true, "promptHint": "Partner contact email address" },
+      { "key": "effectiveDate", "label": "Effective Date", "group": "terms", "kind": "date", "required": true, "promptHint": "Effective date in YYYY-MM-DD format" },
+      { "key": "endDate", "label": "End Date", "group": "terms", "kind": "text", "required": true, "promptHint": "When the partnership ends, e.g. '2027-01-01' or 'ongoing until terminated'" },
+      { "key": "obligations", "label": "Obligations", "group": "terms", "kind": "longtext", "required": true, "minLength": 10, "promptHint": "Each party's obligations under the partnership (free text)" },
+      { "key": "fees", "label": "Fees & Payment", "group": "terms", "kind": "longtext", "required": true, "minLength": 10, "promptHint": "Fees, payment schedule, and payment process (free text)" },
+      { "key": "trademarkTerms", "label": "Trademark & Brand", "group": "terms", "kind": "longtext", "required": true, "minLength": 10, "promptHint": "Brand elements, territory, and brand-usage guidelines (free text)" },
+      { "key": "liabilityCap", "label": "Liability Cap", "group": "terms", "kind": "text", "required": true, "promptHint": "General liability cap amount" },
+      { "key": "governingLaw", "label": "Governing Law", "group": "legal", "kind": "text", "required": true, "promptHint": "Full U.S. state name whose law governs" },
+      { "key": "jurisdiction", "label": "Chosen Courts", "group": "legal", "kind": "text", "required": true, "promptHint": "Courts/location where disputes are handled" }
+    ],
+    "bodyPlaceholders": []
+  },
+  {
+    "slug": "psa",
+    "catalogFilename": "PSA.md",
+    "name": "Professional Services Agreement",
+    "shortName": "PSA",
+    "description": "Agreement for professional services engagements, covering deliverables, statements of work, payment terms, and intellectual property transfer.",
+    "systemPromptIntro": "You are a friendly legal assistant helping a user create a Professional Services Agreement between a Provider and a Customer, covering services, deliverables, and payment. You collect the required details through a natural, freeform conversation.",
+    "partyRoles": [
+      { "key": "partyA", "label": "Provider" },
+      { "key": "partyB", "label": "Customer" }
+    ],
+    "fields": [
+      { "key": "partyA_companyName", "label": "Company", "group": "party:partyA", "kind": "text", "required": true, "promptHint": "Provider company/legal name" },
+      { "key": "partyA_address", "label": "Address", "group": "party:partyA", "kind": "text", "required": true, "promptHint": "Provider full mailing address" },
+      { "key": "partyA_representative", "label": "Representative", "group": "party:partyA", "kind": "text", "required": true, "promptHint": "Name of the person signing for the Provider" },
+      { "key": "partyA_email", "label": "Email", "group": "party:partyA", "kind": "email", "required": true, "promptHint": "Provider contact email address" },
+      { "key": "partyB_companyName", "label": "Company", "group": "party:partyB", "kind": "text", "required": true, "promptHint": "Customer company/legal name" },
+      { "key": "partyB_address", "label": "Address", "group": "party:partyB", "kind": "text", "required": true, "promptHint": "Customer full mailing address" },
+      { "key": "partyB_representative", "label": "Representative", "group": "party:partyB", "kind": "text", "required": true, "promptHint": "Name of the person signing for the Customer" },
+      { "key": "partyB_email", "label": "Email", "group": "party:partyB", "kind": "email", "required": true, "promptHint": "Customer contact email address" },
+      { "key": "effectiveDate", "label": "Effective Date", "group": "terms", "kind": "date", "required": true, "promptHint": "Effective date in YYYY-MM-DD format" },
+      { "key": "servicesDescription", "label": "Services", "group": "terms", "kind": "longtext", "required": true, "minLength": 10, "promptHint": "Summary of the statement of work: services, deliverables, timeline (free text)" },
+      { "key": "fees", "label": "Fees & Payment", "group": "terms", "kind": "longtext", "required": true, "minLength": 10, "promptHint": "Fees, invoicing cadence, and payment terms (free text)" },
+      { "key": "liabilityCap", "label": "Liability Cap", "group": "terms", "kind": "text", "required": true, "promptHint": "General liability cap amount" },
+      { "key": "governingLaw", "label": "Governing Law", "group": "legal", "kind": "text", "required": true, "promptHint": "Full U.S. state name whose law governs" },
+      { "key": "jurisdiction", "label": "Chosen Courts", "group": "legal", "kind": "text", "required": true, "promptHint": "Courts/location where disputes are handled" }
+    ],
+    "bodyPlaceholders": []
+  },
+  {
+    "slug": "sla",
+    "catalogFilename": "SLA.md",
+    "name": "Service Level Agreement",
+    "shortName": "SLA",
+    "description": "Agreement defining service level commitments, uptime targets, response times, and remedies including service credits.",
+    "systemPromptIntro": "You are a friendly legal assistant helping a user create a Service Level Agreement between a Provider and a Customer, defining uptime and support commitments with service-credit remedies. You collect the required details through a natural, freeform conversation.",
+    "partyRoles": [
+      { "key": "partyA", "label": "Provider" },
+      { "key": "partyB", "label": "Customer" }
+    ],
+    "fields": [
+      { "key": "partyA_companyName", "label": "Company", "group": "party:partyA", "kind": "text", "required": true, "promptHint": "Provider company/legal name" },
+      { "key": "partyA_address", "label": "Address", "group": "party:partyA", "kind": "text", "required": true, "promptHint": "Provider full mailing address" },
+      { "key": "partyA_representative", "label": "Representative", "group": "party:partyA", "kind": "text", "required": true, "promptHint": "Name of the person signing for the Provider" },
+      { "key": "partyA_email", "label": "Email", "group": "party:partyA", "kind": "email", "required": true, "promptHint": "Provider contact email address" },
+      { "key": "partyB_companyName", "label": "Company", "group": "party:partyB", "kind": "text", "required": true, "promptHint": "Customer company/legal name" },
+      { "key": "partyB_address", "label": "Address", "group": "party:partyB", "kind": "text", "required": true, "promptHint": "Customer full mailing address" },
+      { "key": "partyB_representative", "label": "Representative", "group": "party:partyB", "kind": "text", "required": true, "promptHint": "Name of the person signing for the Customer" },
+      { "key": "partyB_email", "label": "Email", "group": "party:partyB", "kind": "email", "required": true, "promptHint": "Customer contact email address" },
+      { "key": "effectiveDate", "label": "Effective Date", "group": "terms", "kind": "date", "required": true, "promptHint": "Effective date in YYYY-MM-DD format" },
+      { "key": "cloudServiceDescription", "label": "Cloud Service", "group": "terms", "kind": "longtext", "required": true, "minLength": 10, "promptHint": "The Cloud Service the SLA covers" },
+      { "key": "targetUptime", "label": "Target Uptime", "group": "terms", "kind": "text", "required": true, "promptHint": "Uptime commitment, e.g. '99.9%'" },
+      { "key": "targetResponseTime", "label": "Target Response Time", "group": "terms", "kind": "text", "required": true, "promptHint": "Support response time commitment, e.g. '4 business hours'" },
+      { "key": "supportChannel", "label": "Support Channel", "group": "terms", "kind": "text", "required": true, "promptHint": "Where the Customer submits support requests, e.g. an email or portal" },
+      { "key": "serviceCreditTerms", "label": "Service Credits", "group": "terms", "kind": "longtext", "required": true, "minLength": 10, "promptHint": "How service credits are calculated, capped, and requested (free text)" },
+      { "key": "governingLaw", "label": "Governing Law", "group": "legal", "kind": "text", "required": true, "promptHint": "Full U.S. state name whose law governs" },
+      { "key": "jurisdiction", "label": "Jurisdiction", "group": "legal", "kind": "text", "required": true, "promptHint": "Courts/location where disputes are handled" }
+    ],
+    "bodyPlaceholders": []
+  },
+  {
+    "slug": "software-license-agreement",
+    "catalogFilename": "Software-License-Agreement.md",
+    "name": "Software License Agreement",
+    "shortName": "Software License Agreement",
+    "description": "Agreement for software licensing, covering license grants, restrictions, payment, updates, and termination terms.",
+    "systemPromptIntro": "You are a friendly legal assistant helping a user create a Software License Agreement between a Provider and a Customer, covering the license grant, permitted uses, and payment. You collect the required details through a natural, freeform conversation.",
+    "partyRoles": [
+      { "key": "partyA", "label": "Provider" },
+      { "key": "partyB", "label": "Customer" }
+    ],
+    "fields": [
+      { "key": "partyA_companyName", "label": "Company", "group": "party:partyA", "kind": "text", "required": true, "promptHint": "Provider company/legal name" },
+      { "key": "partyA_address", "label": "Address", "group": "party:partyA", "kind": "text", "required": true, "promptHint": "Provider full mailing address" },
+      { "key": "partyA_representative", "label": "Representative", "group": "party:partyA", "kind": "text", "required": true, "promptHint": "Name of the person signing for the Provider" },
+      { "key": "partyA_email", "label": "Email", "group": "party:partyA", "kind": "email", "required": true, "promptHint": "Provider contact email address" },
+      { "key": "partyB_companyName", "label": "Company", "group": "party:partyB", "kind": "text", "required": true, "promptHint": "Customer company/legal name" },
+      { "key": "partyB_address", "label": "Address", "group": "party:partyB", "kind": "text", "required": true, "promptHint": "Customer full mailing address" },
+      { "key": "partyB_representative", "label": "Representative", "group": "party:partyB", "kind": "text", "required": true, "promptHint": "Name of the person signing for the Customer" },
+      { "key": "partyB_email", "label": "Email", "group": "party:partyB", "kind": "email", "required": true, "promptHint": "Customer contact email address" },
+      { "key": "effectiveDate", "label": "Effective Date", "group": "terms", "kind": "date", "required": true, "promptHint": "Effective date in YYYY-MM-DD format" },
+      { "key": "subscriptionPeriod", "label": "License Period", "group": "terms", "kind": "text", "required": true, "promptHint": "License/subscription period, e.g. '1 year'" },
+      { "key": "softwareDescription", "label": "Software", "group": "terms", "kind": "longtext", "required": true, "minLength": 10, "promptHint": "Description of the Software and Documentation being licensed" },
+      { "key": "permittedUses", "label": "Permitted Uses", "group": "terms", "kind": "longtext", "required": true, "minLength": 10, "promptHint": "Permitted uses and scope of the license (free text)" },
+      { "key": "fees", "label": "Fees & Payment", "group": "terms", "kind": "longtext", "required": true, "minLength": 10, "promptHint": "Fees and payment terms (free text)" },
+      { "key": "liabilityCap", "label": "Liability Cap", "group": "terms", "kind": "text", "required": true, "promptHint": "General liability cap amount" },
+      { "key": "governingLaw", "label": "Governing Law", "group": "legal", "kind": "text", "required": true, "promptHint": "Full U.S. state name whose law governs" },
+      { "key": "jurisdiction", "label": "Chosen Courts", "group": "legal", "kind": "text", "required": true, "promptHint": "Courts/location where disputes are handled" }
+    ],
+    "bodyPlaceholders": []
+  },
+  {
+    "slug": "ai-addendum",
+    "catalogFilename": "AI-Addendum.md",
+    "name": "AI Addendum",
+    "shortName": "AI Addendum",
+    "description": "Standard terms for artificial intelligence and machine learning services, addressing AI-specific risks, model training, and output ownership.",
+    "systemPromptIntro": "You are a friendly legal assistant helping a user create an AI Addendum between a Provider and a Customer that supplements an existing agreement with AI/ML-specific terms about training data and model use. You collect the required details through a natural, freeform conversation.",
+    "partyRoles": [
+      { "key": "partyA", "label": "Provider" },
+      { "key": "partyB", "label": "Customer" }
+    ],
+    "fields": [
+      { "key": "partyA_companyName", "label": "Company", "group": "party:partyA", "kind": "text", "required": true, "promptHint": "Provider company/legal name" },
+      { "key": "partyA_address", "label": "Address", "group": "party:partyA", "kind": "text", "required": true, "promptHint": "Provider full mailing address" },
+      { "key": "partyA_representative", "label": "Representative", "group": "party:partyA", "kind": "text", "required": true, "promptHint": "Name of the person signing for the Provider" },
+      { "key": "partyA_email", "label": "Email", "group": "party:partyA", "kind": "email", "required": true, "promptHint": "Provider contact email address" },
+      { "key": "partyB_companyName", "label": "Company", "group": "party:partyB", "kind": "text", "required": true, "promptHint": "Customer company/legal name" },
+      { "key": "partyB_address", "label": "Address", "group": "party:partyB", "kind": "text", "required": true, "promptHint": "Customer full mailing address" },
+      { "key": "partyB_representative", "label": "Representative", "group": "party:partyB", "kind": "text", "required": true, "promptHint": "Name of the person signing for the Customer" },
+      { "key": "partyB_email", "label": "Email", "group": "party:partyB", "kind": "email", "required": true, "promptHint": "Customer contact email address" },
+      { "key": "effectiveDate", "label": "Effective Date", "group": "terms", "kind": "date", "required": true, "promptHint": "Effective date in YYYY-MM-DD format" },
+      { "key": "underlyingAgreement", "label": "Underlying Agreement", "group": "terms", "kind": "text", "required": true, "promptHint": "The base agreement this AI Addendum supplements, e.g. 'Cloud Service Agreement dated 2026-01-01'" },
+      { "key": "trainingData", "label": "Training Data", "group": "terms", "kind": "longtext", "required": true, "minLength": 10, "promptHint": "What data the Provider may use for training (free text)" },
+      { "key": "trainingPurposes", "label": "Training Purposes", "group": "terms", "kind": "longtext", "required": true, "minLength": 10, "promptHint": "Purposes for which the Provider may use the Training Data (free text)" },
+      { "key": "trainingRestrictions", "label": "Training Restrictions", "group": "terms", "kind": "longtext", "required": true, "minLength": 10, "promptHint": "Restrictions on training and model improvement (free text)" },
+      { "key": "governingLaw", "label": "Governing Law", "group": "legal", "kind": "text", "required": true, "promptHint": "Full U.S. state name whose law governs" },
+      { "key": "jurisdiction", "label": "Jurisdiction", "group": "legal", "kind": "text", "required": true, "promptHint": "Courts/location where disputes are handled" }
+    ],
+    "bodyPlaceholders": []
+  }
+]

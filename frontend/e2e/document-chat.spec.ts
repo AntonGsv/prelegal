@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-const COMPLETE_FIELDS = {
+const NDA_COMPLETE = {
   partyA_companyName: "Acme Inc",
   partyA_address: "1 Acme St, Springfield",
   partyA_representative: "Alice Adams",
@@ -17,17 +17,16 @@ const COMPLETE_FIELDS = {
   jurisdiction: "state and federal courts in San Francisco County, California",
 };
 
-test.describe("NDA chat", () => {
+test.describe("document chat", () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => {
       window.localStorage.setItem("prelegal.auth.loggedIn", "true");
     });
   });
 
-  test("collects details via chat and generates a PDF", async ({ page }) => {
-    // Stub the AI backend so the test needs no API key and is deterministic.
+  test("collects NDA details via chat and generates the PDF", async ({ page }) => {
     let turn = 0;
-    await page.route("**/api/nda/mutual/chat", async (route) => {
+    await page.route("**/api/documents/mutual-nda/chat", async (route) => {
       turn += 1;
       const body =
         turn === 1
@@ -39,8 +38,8 @@ test.describe("NDA chat", () => {
               },
             }
           : {
-              reply: "All set! Ready to generate your NDA.",
-              fields: COMPLETE_FIELDS,
+              reply: "All set! Ready to generate your document.",
+              fields: NDA_COMPLETE,
             };
       await route.fulfill({
         status: 200,
@@ -49,30 +48,24 @@ test.describe("NDA chat", () => {
       });
     });
 
-    await page.goto("/nda/mutual/create");
+    await page.goto("/documents/mutual-nda/create");
 
-    // The greeting and the live document preview render on load.
     await expect(page.getByText(/put together a Mutual NDA/i)).toBeVisible();
-    await expect(page.getByTestId("nda-document-preview")).toBeVisible();
+    await expect(page.getByTestId("document-preview")).toBeVisible();
 
-    // First turn: the preview picks up the partial fields.
     await page.getByTestId("chat-input").fill("Acme Inc and Beta LLC");
     await page.getByTestId("chat-send").click();
     await expect(
       page.getByText("Thanks! What is the effective date?"),
     ).toBeVisible();
-    await expect(page.getByTestId("nda-document-preview")).toContainText(
-      "Acme Inc",
-    );
+    await expect(page.getByTestId("document-preview")).toContainText("Acme Inc");
 
-    // Second turn: all fields arrive, enabling PDF generation.
     await page.getByTestId("chat-input").fill("Here are all the remaining details");
     await page.getByTestId("chat-send").click();
     await expect(
-      page.getByText("All set! Ready to generate your NDA."),
+      page.getByText("All set! Ready to generate your document."),
     ).toBeVisible();
 
-    // The generate button appears and downloading produces the NDA PDF.
     const generate = page.getByTestId("generate-pdf");
     await expect(generate).toBeVisible();
 
@@ -80,5 +73,34 @@ test.describe("NDA chat", () => {
     await generate.click();
     const download = await downloadPromise;
     expect(download.suggestedFilename()).toBe("Mutual-NDA.pdf");
+  });
+
+  test("works for a second document type (Pilot Agreement)", async ({ page }) => {
+    await page.route("**/api/documents/pilot-agreement/chat", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          reply: "Got the provider name.",
+          fields: { partyA_companyName: "Acme Inc" },
+        }),
+      });
+    });
+
+    await page.goto("/documents/pilot-agreement/create");
+
+    await expect(page.getByText(/put together a Pilot Agreement/i)).toBeVisible();
+    await expect(page.getByTestId("document-preview")).toContainText(
+      "Pilot Agreement",
+    );
+
+    await page.getByTestId("chat-input").fill("The provider is Acme Inc");
+    await page.getByTestId("chat-send").click();
+    await expect(page.getByTestId("document-preview")).toContainText("Acme Inc");
+  });
+
+  test("legacy NDA route redirects to the new document route", async ({ page }) => {
+    await page.goto("/nda/mutual/create");
+    await expect(page).toHaveURL(/\/documents\/mutual-nda\/create$/);
   });
 });

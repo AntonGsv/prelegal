@@ -28,8 +28,8 @@ export function AppHeader() {
           Prelegal
         </Link>
         <nav className="flex items-center gap-3">
-          <Link href="/nda/mutual/create">
-            <Button variant="outline">Create NDA</Button>
+          <Link href="/dashboard">
+            <Button variant="outline">New document</Button>
           </Link>
           <Button
             variant="ghost"

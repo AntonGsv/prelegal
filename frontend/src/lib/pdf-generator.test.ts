@@ -1,7 +1,11 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import type { NdaFormData } from "./nda-schema";
+import { describe, it, expect } from "vitest";
+import { generateDocumentPdf, pdfFilename } from "./pdf-generator";
+import { getDocumentConfig } from "./document-registry";
+import type { DocumentData } from "./document-chat-data";
 
-const mockFormData: NdaFormData = {
+const nda = getDocumentConfig("mutual-nda")!;
+
+const ndaData: DocumentData = {
   partyA_companyName: "Acme Corp",
   partyA_address: "123 Main St, New York, NY 10001",
   partyA_representative: "John Smith",
@@ -18,60 +22,31 @@ const mockFormData: NdaFormData = {
   jurisdiction: "federal or state courts in California",
 };
 
-// Helper to create a mock doc for testing
-function createMockDoc() {
-  return {
-    setFont: vi.fn(),
-    setFontSize: vi.fn(),
-    text: vi.fn().mockReturnThis(),
-    addPage: vi.fn(),
-    splitTextToSize: vi.fn().mockReturnValue(["line1", "line2"]),
-    save: vi.fn(),
-    internal: {
-      pageSize: {
-        getWidth: () => 210,
-        getHeight: () => 297,
-      },
-    },
-  };
-}
-
-describe("pdf-generator - mock tests", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
+describe("pdf-generator", () => {
+  it("names the NDA download Mutual-NDA.pdf", () => {
+    expect(pdfFilename(nda)).toBe("Mutual-NDA.pdf");
   });
 
-  it("should define generateNdaPdf as a function", async () => {
-    // Dynamic import to avoid module-level issues
-    const { generateNdaPdf } = await import("./pdf-generator");
-    expect(typeof generateNdaPdf).toBe("function");
+  it("derives a filename from the document short name", () => {
+    const dpa = getDocumentConfig("dpa")!;
+    expect(pdfFilename(dpa)).toBe("DPA.pdf");
+    const csa = getDocumentConfig("csa")!;
+    expect(pdfFilename(csa)).toBe("Cloud-Service-Agreement.pdf");
   });
 
-  it("should accept NdaFormData as parameter", async () => {
-    const { generateNdaPdf } = await import("./pdf-generator");
-    // Just verify it can be called (will create actual PDF in browser)
-    expect(() => generateNdaPdf(mockFormData)).not.toThrow();
+  it("generates a PDF without throwing", () => {
+    expect(() =>
+      generateDocumentPdf(nda, "Standard Terms body for the State of Governing Law.", ndaData),
+    ).not.toThrow();
   });
 
-  it("mockDoc interface supports required methods", () => {
-    const mockDoc = createMockDoc();
-    mockDoc.setFont("helvetica", "bold");
-    mockDoc.setFontSize(14);
-    mockDoc.text("Test", 10, 10);
-    mockDoc.addPage();
-    mockDoc.save("test.pdf");
-
-    expect(mockDoc.setFont).toHaveBeenCalledWith("helvetica", "bold");
-    expect(mockDoc.setFontSize).toHaveBeenCalledWith(14);
-    expect(mockDoc.text).toHaveBeenCalledWith("Test", 10, 10);
-    expect(mockDoc.addPage).toHaveBeenCalled();
-    expect(mockDoc.save).toHaveBeenCalledWith("test.pdf");
-  });
-
-  it("splitTextToSize returns array of lines", () => {
-    const mockDoc = createMockDoc();
-    const result = mockDoc.splitTextToSize("Long text here", 100);
-    expect(Array.isArray(result)).toBe(true);
-    expect(result.length).toBeGreaterThan(0);
+  it("generates a PDF for a document with no body placeholders", () => {
+    const sla = getDocumentConfig("sla")!;
+    const slaData: DocumentData = Object.fromEntries(
+      sla.fields.map((f) => [f.key, f.kind === "email" ? "x@y.com" : "value"]),
+    );
+    expect(() =>
+      generateDocumentPdf(sla, "SLA standard terms body.", slaData),
+    ).not.toThrow();
   });
 });

@@ -43,5 +43,5 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Generated NDA download (test artifact)
-Mutual-NDA.pdf
+# Generated document PDFs (test/dev artifacts written to cwd by jsPDF)
+/*.pdf
