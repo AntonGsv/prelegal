@@ -21,6 +21,11 @@ from .database import create_user, get_user_by_email, get_user_by_id
 
 _MIN_PASSWORD_LENGTH = 8
 
+# A valid hash used to equalize login timing when the email is unknown, so an
+# attacker can't distinguish "no such account" from "wrong password" by response
+# time (email enumeration). Computed once at import.
+_TIMING_EQUALIZER_HASH = security.hash_password("prelegal-timing-equalizer")
+
 
 class AuthError(Exception):
     """Base class for auth failures that map to specific HTTP responses."""
@@ -98,7 +103,15 @@ def register(
 
     display_name = (request.display_name or "").strip() or None
     password_hash = security.hash_password(request.password)
-    user = create_user(database_url, email, display_name, password_hash)
+    try:
+        user = create_user(database_url, email, display_name, password_hash)
+    except Exception:
+        # A concurrent registration may have inserted the same email between the
+        # check above and this insert (the UNIQUE constraint then fires). Surface
+        # that race as a clean 409 rather than a 500.
+        if get_user_by_email(database_url, email) is not None:
+            raise EmailTakenError("An account with this email already exists")
+        raise
     return _issue(user, secret, ttl_seconds)
 
 
@@ -107,7 +120,12 @@ def authenticate(
 ) -> AuthResponse:
     email = normalize_email(request.email)
     user = get_user_by_email(database_url, email)
-    if user is None or not security.verify_password(request.password, user["password_hash"]):
+    if user is None:
+        # Burn the same PBKDF2 cost as a real verify so login time doesn't reveal
+        # whether the email exists.
+        security.verify_password(request.password, _TIMING_EQUALIZER_HASH)
+        raise InvalidCredentialsError("Incorrect email or password")
+    if not security.verify_password(request.password, user["password_hash"]):
         raise InvalidCredentialsError("Incorrect email or password")
     return _issue(user, secret, ttl_seconds)
 

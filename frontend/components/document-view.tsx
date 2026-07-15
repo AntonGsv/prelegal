@@ -32,14 +32,12 @@ export function DocumentView({
 }) {
   const searchParams = useSearchParams();
   const idParam = searchParams.get("id");
+  const id = Number(idParam);
+  const validId = Boolean(idParam) && !Number.isNaN(id);
   const [state, setState] = useState<LoadState>({ status: "loading" });
 
   useEffect(() => {
-    const id = Number(idParam);
-    if (!idParam || Number.isNaN(id)) {
-      setState({ status: "error", message: "This document link is invalid." });
-      return;
-    }
+    if (!validId) return;
 
     let cancelled = false;
     getDocument(id)
@@ -64,7 +62,20 @@ export function DocumentView({
     return () => {
       cancelled = true;
     };
-  }, [idParam, config.slug]);
+  }, [id, validId, config.slug]);
+
+  if (!validId) {
+    return (
+      <div className="rounded-md border bg-card p-6" data-testid="document-view-error">
+        <p className="text-sm text-muted-foreground">
+          This document link is invalid.
+        </p>
+        <Link href="/history" className="mt-4 inline-block">
+          <Button variant="outline">Back to my documents</Button>
+        </Link>
+      </div>
+    );
+  }
 
   if (state.status === "loading") {
     return (
