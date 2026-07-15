@@ -49,6 +49,12 @@ settings = get_settings()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origin_list,
+    # Also allow any *.vercel.app origin (the frontend's production/preview/deploy
+    # domains all live there). This keeps the cross-origin two-project deploy
+    # working without pinning the frontend's exact, occasionally-changing Vercel
+    # URL in PRELEGAL_CORS_ORIGINS. Explicit origins above still apply for custom
+    # domains / local dev.
+    allow_origin_regex=r"https://[a-z0-9-]+\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
