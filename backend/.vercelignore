@@ -1,0 +1,11 @@
+# Force Vercel's Python builder to install from requirements.txt (a plain
+# `pip install -r`, no project self-build) instead of the uv manifests. When
+# both a pyproject.toml and requirements.txt are present, Vercel prefers
+# pyproject.toml/uv.lock and would try to `uv sync` the project — which this
+# repo intentionally never installs (the Docker build uses
+# `--no-install-project` and puts src/ on PYTHONPATH; pyproject has no
+# [build-system]). Excluding them from the upload keeps the deploy predictable
+# and keeps uvicorn's extras out of the function bundle. Local dev/Docker/uv are
+# unaffected — these files stay in the repo, they just aren't uploaded to Vercel.
+pyproject.toml
+uv.lock
