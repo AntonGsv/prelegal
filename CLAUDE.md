@@ -26,6 +26,17 @@ When writing code to make calls to LLMs, use your Cerebras skill to use LiteLLM 
 
 - Skill: `Cerebras Inference` (`.claude/skills/cerebras/SKILL.md`)
 - `OPENROUTER_API_KEY` in the `.env` file in the project root
+- Model `openrouter/openai/gpt-oss-120b`, provider pinned to Cerebras via `extra_body={"provider": {"order": ["cerebras"]}}`, `reasoning_effort="low"`, and a Pydantic model as `response_format` for structured outputs.
+
+### NDA chat architecture (PL-5 decisions)
+
+These implementation choices were made for the AI chat and should be preserved as the pattern for future document types:
+
+- **Stateless backend.** The server keeps no session state. The frontend sends the *full* conversation history on every turn; the model re-extracts *all* fields from the whole conversation each turn (single source of truth, no server-side merge). See `run_chat_turn` in `backend/src/prelegal_api/nda_chat.py`.
+- **Non-streaming.** Each turn is a single request/response returning `{ reply, fields }` — `reply` is the assistant's next message, `fields` is every field known so far (null until provided).
+- **Read-only preview + confirm in chat.** `nda-document-preview.tsx` renders the live document and fills as fields arrive; the user reviews and confirms *in the chat*, not via an editable form. PDF download unlocks only once every field validates (`nda-chat-data.ts` → Zod schema).
+- **Resilience.** The LLM call is wrapped with retries (`num_retries` + an outer retry loop covering empty/unparseable responses) and a request timeout, so a transient provider hiccup does not surface as an error to the user. Failures are logged; the endpoint returns 503 if the API key is unconfigured and 502 if the AI service ultimately fails.
+- **Chat endpoint:** `POST /api/nda/mutual/chat`, request `{ messages: [{ role, content }] }`, response `{ reply, fields }`.
 
 ## Technical design
 
