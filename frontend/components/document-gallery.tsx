@@ -17,9 +17,9 @@ export function DocumentGallery() {
           data-testid={`doc-card-${doc.slug}`}
           className="group"
         >
-          <Card className="h-full transition group-hover:border-[#209dd7] group-hover:shadow-md">
+          <Card className="h-full transition group-hover:ring-brand-blue group-hover:shadow-md">
             <CardHeader>
-              <CardTitle className="text-base text-[#032147]">
+              <CardTitle className="text-base text-brand-navy dark:text-white">
                 {doc.name}
               </CardTitle>
             </CardHeader>

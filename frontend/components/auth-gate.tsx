@@ -6,24 +6,23 @@ import { usePathname, useRouter } from "next/navigation";
 import { isLoggedIn } from "../src/lib/auth-storage";
 
 /**
- * Client-side auth gate for the foundation phase. While PL-4 is
- * "fake login, no authentication," this gate keeps the unauthenticated
- * landing page out of the signed-in shell — `/` always bounces to
- * `/login` if the user isn't flagged as signed in, and `/dashboard`
- * does the same.
+ * Client-side auth gate. Public routes (the marketing landing page and the
+ * sign-in / sign-up screens) are always reachable; everything else redirects to
+ * `/login` unless a session token is present (`isLoggedIn()`). Signed-in users
+ * who land on an auth screen are bounced to the dashboard.
  *
- * The check is client-side on purpose: any future real session will
- * replace `isLoggedIn()` without touching the call sites.
+ * The check is client-side on purpose, matching the bearer-token session that
+ * lives in `localStorage`; `isLoggedIn()` is the single swap-in point.
  *
  * Children render immediately rather than waiting on the auth check, so an
- * unauthenticated visitor can see a flash of the next route's markup before
- * the redirect fires. Acceptable for now: nothing rendered behind the gate
- * is sensitive (the login is cosmetic and the NDA flow has no real data).
- * Gating the render on a `ready` flag was tried and reverted — it delays
- * first paint enough to break keyboard-focus timing in existing E2E tests.
- * Revisit this trade-off once real sessions replace `isLoggedIn()`.
+ * unauthenticated visitor can see a flash of the next route's markup before the
+ * redirect fires. Acceptable here: nothing rendered behind the gate is
+ * sensitive, and the per-user API data is separately protected server-side by
+ * the bearer token. Gating the render on a `ready` flag was tried and reverted —
+ * it delays first paint enough to break keyboard-focus timing in E2E tests.
  */
-const PUBLIC_ROUTES = new Set<string>(["/login"]);
+const PUBLIC_ROUTES = new Set<string>(["/", "/login", "/signup"]);
+const AUTH_ROUTES = new Set<string>(["/login", "/signup"]);
 
 export function AuthGate({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -38,7 +37,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    if (loggedIn && pathname === "/") {
+    if (loggedIn && pathname !== null && AUTH_ROUTES.has(pathname)) {
       router.replace("/dashboard");
     }
   }, [pathname, router]);

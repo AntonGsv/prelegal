@@ -20,7 +20,27 @@ const NDA_COMPLETE = {
 test.describe("document chat", () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => {
-      window.localStorage.setItem("prelegal.auth.loggedIn", "true");
+      window.localStorage.setItem("prelegal.auth.token", "e2e-token");
+      window.localStorage.setItem(
+        "prelegal.auth.user",
+        JSON.stringify({ id: 1, email: "founder@example.com", displayName: "Founder" }),
+      );
+    });
+    // Saving to history fires after the PDF download; stub it so the flow does
+    // not depend on a running backend.
+    await page.route("**/api/documents/history", async (route) => {
+      await route.fulfill({
+        status: 201,
+        contentType: "application/json",
+        body: JSON.stringify({
+          id: 1,
+          slug: "mutual-nda",
+          name: "Mutual Non-Disclosure Agreement",
+          title: "Mutual NDA",
+          createdAt: "2026-01-01 00:00:00",
+          fields: {},
+        }),
+      });
     });
   });
 

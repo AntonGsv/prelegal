@@ -14,7 +14,8 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
-import { sendDocumentChat } from "../src/lib/api-client";
+import { saveDocument, sendDocumentChat } from "../src/lib/api-client";
+import { isLoggedIn } from "../src/lib/auth-storage";
 import { toCompleteDocumentData } from "../src/lib/document-chat-data";
 import { generateDocumentPdf } from "../src/lib/pdf-generator";
 import type { DocumentConfig } from "../src/lib/document-registry";
@@ -89,11 +90,26 @@ export function DocumentChat({
       await new Promise((resolve) => setTimeout(resolve, 300));
       generateDocumentPdf(config, templateBody, completeData);
       toast.success("PDF downloaded successfully!");
+      // Persist to the user's history so they can revisit/re-download it later.
+      // A save failure must never block the download the user just got, so it is
+      // handled separately and surfaced only as a soft warning.
+      void persistToHistory(completeData);
     } catch (error) {
       console.error("PDF generation failed:", error);
       toast.error("Failed to generate PDF. Please try again.");
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const persistToHistory = async (data: Record<string, string>) => {
+    if (!isLoggedIn()) return;
+    try {
+      await saveDocument(config.slug, data);
+      toast.success("Saved to your documents");
+    } catch (error) {
+      console.error("Saving document to history failed:", error);
+      toast.warning("Downloaded, but couldn't save to your documents.");
     }
   };
 
@@ -121,12 +137,12 @@ export function DocumentChat({
           </div>
 
           {completeData ? (
-            <div className="rounded-md border border-[#753991]/30 bg-[#753991]/5 p-3">
+            <div className="rounded-md border border-brand-purple/30 bg-brand-purple/5 p-3">
               <p className="mb-2 text-sm font-medium">
                 All details collected — ready to generate your document.
               </p>
               <Button
-                className="w-full bg-[#753991] text-white hover:bg-[#753991]/90"
+                className="w-full bg-brand-purple text-white hover:bg-brand-purple/90"
                 onClick={handleGenerate}
                 disabled={isGenerating}
                 data-testid="generate-pdf"

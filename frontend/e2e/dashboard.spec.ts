@@ -3,7 +3,11 @@ import { test, expect } from "@playwright/test";
 test.describe("dashboard", () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript(() => {
-      window.localStorage.setItem("prelegal.auth.loggedIn", "true");
+      window.localStorage.setItem("prelegal.auth.token", "e2e-token");
+      window.localStorage.setItem(
+        "prelegal.auth.user",
+        JSON.stringify({ id: 1, email: "founder@example.com", displayName: "Founder" }),
+      );
     });
   });
 
@@ -69,5 +73,37 @@ test.describe("dashboard", () => {
     );
     await page.getByTestId("finder-suggested-link").click();
     await expect(page).toHaveURL(/\/documents\/psa\/create$/);
+  });
+
+  test("opens the account menu and signs out", async ({ page }) => {
+    await page.goto("/dashboard");
+
+    await page.getByTestId("account-menu").click();
+    await page.getByTestId("sign-out").click();
+
+    await expect(page).toHaveURL(/\/login/);
+    const token = await page.evaluate(() =>
+      window.localStorage.getItem("prelegal.auth.token"),
+    );
+    expect(token).toBeNull();
+  });
+
+  test("navigates to the document history page from the account menu", async ({
+    page,
+  }) => {
+    await page.route("**/api/documents/history", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify([]),
+      });
+    });
+
+    await page.goto("/dashboard");
+    await page.getByTestId("account-menu").click();
+    await page.getByTestId("nav-history").click();
+
+    await expect(page).toHaveURL(/\/history$/);
+    await expect(page.getByTestId("history-empty")).toBeVisible();
   });
 });

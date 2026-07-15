@@ -1,11 +1,20 @@
 import { describe, it, expect } from "vitest";
 import {
+  DRAFT_DISCLAIMER,
   formatDate,
   renderStandardTerms,
   substitutePlaceholders,
 } from "./document-template";
 import { getDocumentConfig } from "./document-registry";
 import { loadTemplateBody } from "./template-loader";
+
+describe("DRAFT_DISCLAIMER", () => {
+  it("flags the document as a draft that needs legal review", () => {
+    expect(DRAFT_DISCLAIMER.toLowerCase()).toContain("draft");
+    expect(DRAFT_DISCLAIMER.toLowerCase()).toContain("legal advice");
+    expect(DRAFT_DISCLAIMER.toLowerCase()).toContain("attorney");
+  });
+});
 
 describe("formatDate", () => {
   it("formats a valid date string", () => {

@@ -1,8 +1,31 @@
-import { describe, it, expect, vi, afterEach } from "vitest";
-import { detectDocumentType, sendDocumentChat } from "./api-client";
+import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
+import {
+  detectDocumentType,
+  getDocument,
+  listDocuments,
+  loginUser,
+  registerUser,
+  saveDocument,
+  sendDocumentChat,
+} from "./api-client";
+import { setSession } from "./auth-storage";
 import type { ChatMessage } from "../types/chat";
 
+function mockFetchOnce(body: unknown, ok = true, status = 200) {
+  const fetchMock = vi.fn().mockResolvedValue({
+    ok,
+    status,
+    json: async () => body,
+  });
+  vi.stubGlobal("fetch", fetchMock);
+  return fetchMock;
+}
+
 describe("api-client", () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+  });
+
   afterEach(() => {
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
@@ -71,6 +94,101 @@ describe("api-client", () => {
       await expect(
         detectDocumentType([{ role: "user", content: "hi" }]),
       ).rejects.toThrow(/503/);
+    });
+  });
+
+  describe("auth endpoints", () => {
+    it("registers without attaching an auth header", async () => {
+      const fetchMock = mockFetchOnce({
+        token: "t",
+        user: { id: 1, email: "a@b.com", displayName: null },
+      });
+
+      const result = await registerUser("a@b.com", "longenough", "Jane");
+
+      expect(result.token).toBe("t");
+      const [url, options] = fetchMock.mock.calls[0];
+      expect(url).toContain("/api/auth/register");
+      expect(JSON.parse(options.body)).toEqual({
+        email: "a@b.com",
+        password: "longenough",
+        displayName: "Jane",
+      });
+      expect(options.headers.Authorization).toBeUndefined();
+    });
+
+    it("logs in and returns the token + user", async () => {
+      const fetchMock = mockFetchOnce({
+        token: "tok",
+        user: { id: 2, email: "c@d.com", displayName: "C" },
+      });
+
+      const result = await loginUser("c@d.com", "secret123");
+
+      expect(result.user.email).toBe("c@d.com");
+      expect(fetchMock.mock.calls[0][0]).toContain("/api/auth/login");
+    });
+
+    it("surfaces the backend error detail message", async () => {
+      mockFetchOnce({ detail: "An account with this email already exists" }, false, 409);
+
+      await expect(registerUser("a@b.com", "longenough")).rejects.toThrow(
+        /already exists/,
+      );
+    });
+  });
+
+  describe("document history endpoints", () => {
+    it("attaches the bearer token when signed in", async () => {
+      setSession("my-token", { id: 1, email: "a@b.com", displayName: null });
+      const fetchMock = mockFetchOnce([]);
+
+      await listDocuments();
+
+      const [url, options] = fetchMock.mock.calls[0];
+      expect(url).toContain("/api/documents/history");
+      expect(options.headers.Authorization).toBe("Bearer my-token");
+    });
+
+    it("posts the slug and fields when saving", async () => {
+      setSession("my-token", { id: 1, email: "a@b.com", displayName: null });
+      const fetchMock = mockFetchOnce({
+        id: 5,
+        slug: "mutual-nda",
+        name: "Mutual Non-Disclosure Agreement",
+        title: "Mutual NDA — Acme",
+        createdAt: "2026-01-01 00:00:00",
+        fields: { partyA_companyName: "Acme" },
+      });
+
+      const result = await saveDocument("mutual-nda", { partyA_companyName: "Acme" });
+
+      expect(result.id).toBe(5);
+      const [url, options] = fetchMock.mock.calls[0];
+      expect(url).toContain("/api/documents/history");
+      expect(options.method).toBe("POST");
+      expect(JSON.parse(options.body)).toEqual({
+        slug: "mutual-nda",
+        fields: { partyA_companyName: "Acme" },
+        title: undefined,
+      });
+    });
+
+    it("fetches a single document by id", async () => {
+      setSession("my-token", { id: 1, email: "a@b.com", displayName: null });
+      const fetchMock = mockFetchOnce({
+        id: 7,
+        slug: "mutual-nda",
+        name: "Mutual Non-Disclosure Agreement",
+        title: "Mutual NDA",
+        createdAt: null,
+        fields: {},
+      });
+
+      const result = await getDocument(7);
+
+      expect(result.id).toBe(7);
+      expect(fetchMock.mock.calls[0][0]).toContain("/api/documents/history/7");
     });
   });
 });

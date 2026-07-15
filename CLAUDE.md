@@ -8,7 +8,16 @@ The available documents are covered in the `catalog.json` file in the project ro
 
 @catalog.json
 
-Current state (through PL-6): a full-stack V1 foundation — Next.js frontend, FastAPI backend, libSQL database, and Docker Compose — with a cosmetic ("fake") login. It supports **all 11 legal document types** in `catalog.json`, each created via a **freeform AI chat**: the assistant asks about each field, extracts them from the conversation, and fills a live document preview; the user downloads the PDF once every field is collected. The dashboard offers a **gallery** of all documents plus a **freeform finder** where the user describes what they need and the AI routes them to the right document (or explains an unsupported request and offers the closest supported document). Everything is driven by a single **document registry** (`document_registry.json`) — adding a document type is a registry edit, not new code.
+Current state (through PL-7): a full-stack V1 platform — Next.js frontend, FastAPI backend, libSQL database, and Docker Compose — with **real accounts and per-user document history**. It supports **all 11 legal document types** in `catalog.json`, each created via a **freeform AI chat**: the assistant asks about each field, extracts them from the conversation, and fills a live document preview; the user downloads the PDF once every field is collected. The dashboard offers a **gallery** of all documents plus a **freeform finder** where the user describes what they need and the AI routes them to the right document (or explains an unsupported request and offers the closest supported document). Everything is driven by a single **document registry** (`document_registry.json`) — adding a document type is a registry edit, not new code.
+
+### Auth & document history (PL-7 decisions)
+
+- **Real accounts.** Sign up / sign in with email + password. Passwords are hashed with stdlib PBKDF2-HMAC and stored in the libSQL `users` table (`security.py`, `auth.py`, `database.py`). Auth crypto is deliberately dependency-free (stdlib `hashlib`/`hmac`) to avoid native wheels, matching the libSQL fallback philosophy.
+- **Bearer-token sessions.** A successful register/login returns a compact HMAC-signed token (a mini-JWT, `security.create_token`) that the frontend keeps in `localStorage` (`auth-storage.ts`) and sends as `Authorization: Bearer`. The backend is stateless — no session store; the token is verified per request (`require_user` dependency). `PRELEGAL_SESSION_SECRET` signs tokens (dev default provided).
+- **Per-user history.** Generating a PDF also saves `{ slug, fields }` to a `documents` table keyed by user. A document is fully reconstructable from slug + fields (template + config derive from the slug), so revisiting re-renders the read-only preview and re-downloads an identical PDF. History lives at `/history`; a saved document opens at `/documents/[slug]/view?id=N` (static per slug, id read client-side — the runner has no source `.md` files).
+- **Draft disclaimer.** Every generated document carries a "draft, not legal advice, review by an attorney" disclaimer, defined once as `DRAFT_DISCLAIMER` in `document-template.ts` and rendered identically in the live preview and the PDF cover page.
+- **Endpoints:** `POST /api/auth/register` (409 dup email), `POST /api/auth/login` (401), `GET /api/auth/me`; and Bearer-gated `POST|GET /api/documents/history`, `GET /api/documents/history/{id}`.
+- **UI polish.** Brand colors are tokenized in `globals.css` (`--brand-*`, `--primary` remapped to brand blue) instead of ad-hoc hex; there is a real marketing landing page (`/`), a header account menu, and `next-themes` dark mode.
 
 ## Development process
 
@@ -37,6 +46,7 @@ The AI chat generalizes across all document types via a **registry-driven** desi
 - **Read-only preview + confirm in chat.** `document-preview.tsx` renders the live document and fills as fields arrive; the user reviews and confirms *in the chat*, not via an editable form. PDF download unlocks only once every required field validates (`document-chat-data.ts` → registry-built Zod schema).
 - **Resilience.** The LLM call is wrapped with retries (`num_retries` + an outer retry loop covering empty/unparseable responses) and a request timeout, so a transient provider hiccup does not surface as an error to the user. This lives in `llm_client.run_structured_turn`, shared by chat and detection. The endpoint returns 503 if the API key is unconfigured and 502 if the AI service ultimately fails.
 - **Flat fields (V1).** Each document is a standalone 2-party contract with a flat field set and a synthesized cover page; structurally complex data (DPA subprocessors, PSA SOWs, Partnership trademark terms) is collected as free-text fields.
+- **Template bodies.** The standard-terms body is the raw `templates/*.md`, mirrored into `frontend/src/content/templates/` (guarded against drift by a test) and read server-side in the `[slug]/create` page, then passed to the client for preview/PDF. `renderStandardTerms` (in `document-template.ts`, shared by preview and PDF) cleans it: substitutes placeholder values (only the NDA declares any — others rely on the cover page to carry values), then strips inline HTML (the AI Addendum template uses `<span>` markup) and markdown bold.
 - **Endpoints:** `POST /api/documents/{slug}/chat` (chat for one document type; 404 on unknown slug) and `POST /api/documents/detect` (freeform document-type detection → `{ reply, matchedSlug, suggestedSlug }`). Both take `{ messages: [{ role, content }] }`.
 
 ## Technical design
@@ -78,20 +88,25 @@ backend/
 │   ├── document_registry.py     # Registry loader + validation
 │   ├── document_chat.py         # Per-document chat: dynamic schema + prompt + run_chat_turn
 │   ├── document_detect.py       # Freeform document-type detection
+│   ├── document_history.py      # Per-user saved documents (save/list/get) — PL-7
+│   ├── auth.py                  # Register/login/token-resolve (Pydantic models + logic) — PL-7
+│   ├── security.py              # Stdlib password hashing + signed session tokens — PL-7
 │   ├── llm_client.py            # LiteLLM/Cerebras wrapper + shared structured-output retry loop
-│   ├── database.py              # libSQL connect + users-table schema init
-│   └── settings.py              # Env-based config
+│   ├── database.py              # libSQL connect + users/documents schema init + query helpers
+│   └── settings.py              # Env-based config (incl. session_secret)
 └── tests/            # pytest
 frontend/
 ├── app/              # Next.js App Router pages
-│   ├── page.tsx      # Landing page
-│   ├── login/        # Fake login (sets localStorage flag)
+│   ├── page.tsx      # Marketing landing page (public)
+│   ├── login/ · signup/          # Real auth (email + password)
 │   ├── dashboard/    # Signed-in home: document gallery + freeform finder
+│   ├── history/      # "My documents": per-user saved-document history
 │   ├── documents/[slug]/create/  # Document creation flow (AI chat), one dynamic route for all 11
+│   ├── documents/[slug]/view/    # Read-only view of a saved document (?id=N), static per slug
 │   └── nda/mutual/create/        # Legacy redirect → /documents/mutual-nda/create
-├── components/       # app-header, auth-gate, login-form, document-chat, document-preview,
-│                     #   document-gallery, document-finder, chat-bubbles + ui/ (shadcn)
-├── src/lib/          # Business logic (document-registry, schema, template, PDF, auth, api-client)
+├── components/       # app-header, auth-gate, auth-form, theme-provider/-toggle, document-chat,
+│                     #   document-preview, document-view, document-gallery/-finder/-history + ui/
+├── src/lib/          # Business logic (document-registry, schema, template, PDF, auth-storage, api-client, use-auth)
 ├── src/content/templates/  # Mirror of repo-root templates/*.md (read server-side for preview/PDF)
 └── src/types/        # TypeScript types
 templates/            # 11 CommonPaper legal templates (CC BY 4.0) + LICENSE

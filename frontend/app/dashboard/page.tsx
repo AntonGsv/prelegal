@@ -16,12 +16,12 @@ export const metadata: Metadata = {
  */
 export default function DashboardPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
       <AppHeader />
 
       <main className="container mx-auto px-4 py-12">
         <div className="mx-auto max-w-3xl text-center">
-          <h2 className="mb-4 text-4xl font-bold tracking-tight">
+          <h2 className="mb-4 text-4xl font-bold tracking-tight text-brand-navy dark:text-white">
             Legal Documents Made Simple
           </h2>
           <p className="mb-8 text-lg text-muted-foreground">
@@ -34,7 +34,7 @@ export default function DashboardPage() {
           <DocumentFinder />
         </div>
 
-        <h3 className="mb-4 text-xl font-semibold text-[#032147]">
+        <h3 className="mb-4 text-xl font-semibold text-brand-navy dark:text-white">
           Supported documents
         </h3>
         <DocumentGallery />

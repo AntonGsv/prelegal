@@ -6,6 +6,16 @@ import {
   type DocumentConfig,
 } from "./document-registry";
 
+/**
+ * Draft disclaimer shown on every generated document. Defined once here and used
+ * by both the live preview (`document-preview.tsx`) and the PDF cover page
+ * (`renderCoverPage`) so the two can never disagree on the wording.
+ */
+export const DRAFT_DISCLAIMER =
+  "DRAFT — This document is a draft provided for informational purposes only. " +
+  "It does not constitute legal advice and should be reviewed by a qualified " +
+  "attorney before use.";
+
 export function formatDate(dateString: string): string {
   if (!dateString) return "";
   const date = new Date(dateString);
@@ -100,7 +110,18 @@ export function renderCoverPage(
   doc.setFont("helvetica", "bold");
   doc.setFontSize(18);
   doc.text(config.name.toUpperCase(), pageWidth / 2, y, { align: "center" });
-  y += 15;
+  y += 12;
+
+  // Draft disclaimer (centered, small, italic) directly under the title.
+  doc.setFont("helvetica", "italic");
+  doc.setFontSize(8);
+  doc.setTextColor(120, 120, 120);
+  for (const wrapped of doc.splitTextToSize(DRAFT_DISCLAIMER, contentWidth)) {
+    doc.text(wrapped, pageWidth / 2, y, { align: "center" });
+    y += 4;
+  }
+  doc.setTextColor(0, 0, 0);
+  y += 6;
   doc.setFont("helvetica", "normal");
   doc.setFontSize(11);
 
