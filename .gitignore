@@ -53,6 +53,9 @@ node_modules/
 out/
 .cache/
 
+# Vercel
+.vercel/
+
 # Build outputs
 *.tsbuildinfo
 next-env.d.ts

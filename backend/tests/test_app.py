@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
+from prelegal_api import database
 from prelegal_api.database import connect_database, init_database
 from prelegal_api.main import app
 
@@ -144,6 +145,68 @@ def test_init_database_migration_is_idempotent(tmp_path: Path):
         connection.close()
 
     assert columns.count("password_hash") == 1
+
+
+class _RecordingLibsql:
+    """Stand-in for the `libsql_experimental` module that records connect args.
+
+    The native wheel is unavailable on some dev platforms, so the remote
+    (Turso) code path is exercised by patching `database.libsql`.
+    """
+
+    def __init__(self) -> None:
+        self.calls: list[tuple[tuple, dict]] = []
+
+    def connect(self, *args, **kwargs):
+        self.calls.append((args, kwargs))
+        return object()
+
+
+def test_connect_passes_auth_token_for_remote_url(monkeypatch: pytest.MonkeyPatch):
+    fake = _RecordingLibsql()
+    monkeypatch.setattr(database, "libsql", fake)
+    monkeypatch.setenv("PRELEGAL_DATABASE_AUTH_TOKEN", "turso-token")
+
+    connect_database("libsql://example.turso.io")
+
+    (args, kwargs) = fake.calls[0]
+    assert args == ("libsql://example.turso.io",)
+    assert kwargs == {"auth_token": "turso-token"}
+
+
+def test_connect_reads_db_token_fallback_for_remote_url(
+    monkeypatch: pytest.MonkeyPatch,
+):
+    fake = _RecordingLibsql()
+    monkeypatch.setattr(database, "libsql", fake)
+    monkeypatch.delenv("PRELEGAL_DATABASE_AUTH_TOKEN", raising=False)
+    monkeypatch.setenv("DB_TOKEN", "legacy-named-token")
+
+    connect_database("libsql://example.turso.io")
+
+    assert fake.calls[0][1] == {"auth_token": "legacy-named-token"}
+
+
+def test_connect_explicit_token_overrides_env(monkeypatch: pytest.MonkeyPatch):
+    fake = _RecordingLibsql()
+    monkeypatch.setattr(database, "libsql", fake)
+    monkeypatch.setenv("PRELEGAL_DATABASE_AUTH_TOKEN", "env-token")
+
+    connect_database("libsql://example.turso.io", auth_token="explicit-token")
+
+    assert fake.calls[0][1] == {"auth_token": "explicit-token"}
+
+
+def test_connect_omits_auth_token_for_file_url(monkeypatch: pytest.MonkeyPatch):
+    # A local file: URL must open without a token even when one is in the
+    # environment, preserving the embedded/local connection behavior.
+    fake = _RecordingLibsql()
+    monkeypatch.setattr(database, "libsql", fake)
+    monkeypatch.setenv("PRELEGAL_DATABASE_AUTH_TOKEN", "turso-token")
+
+    connect_database("file:./data/prelegal.db")
+
+    assert fake.calls[0] == (("file:./data/prelegal.db",), {})
 
 
 def test_register_works_against_a_migrated_legacy_database(

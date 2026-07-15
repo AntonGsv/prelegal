@@ -1,3 +1,4 @@
+import os
 import sqlite3
 from pathlib import Path
 from typing import Any, Protocol
@@ -59,18 +60,46 @@ def _ensure_parent_directory(database_url: str) -> None:
         database_path.parent.mkdir(parents=True, exist_ok=True)
 
 
-def connect_database(database_url: str) -> DatabaseConnection:
+def _auth_token_from_env() -> str | None:
+    """Read the Turso auth token used for remote (non-file) connections.
+
+    A hosted Turso database requires a Bearer auth token, which a local `file:`
+    URL never does. The token is a connection credential needed only at the
+    single connect point, so it is read from the environment here rather than
+    threaded through every query helper (which take only `database_url`) or
+    coupling this module to `settings` (kept decoupled so tests pass URLs
+    directly). `PRELEGAL_DATABASE_AUTH_TOKEN` is the documented name;
+    `DB_TOKEN` is accepted as a fallback alias.
+    """
+
+    token = os.environ.get("PRELEGAL_DATABASE_AUTH_TOKEN") or os.environ.get("DB_TOKEN")
+    return token or None
+
+
+def connect_database(
+    database_url: str, auth_token: str | None = None
+) -> DatabaseConnection:
     """Connect to libSQL, falling back to sqlite3 for local file URLs.
 
     Turso/libSQL is the intended database layer. The fallback keeps local tests
     runnable on Python versions/platforms where `libsql-experimental` has no
     prebuilt wheel and compiling the native extension is not available.
+
+    A remote Turso URL (e.g. `libsql://...`) is authenticated with a Bearer
+    token; when one is not passed explicitly it is resolved from the
+    environment. A local `file:` URL is opened without a token so embedded/local
+    behavior is unchanged.
     """
 
-    if libsql is not None:
-        return libsql.connect(database_url)
+    is_file_url = database_url.startswith("file:")
 
-    if database_url.startswith("file:"):
+    if libsql is not None:
+        if is_file_url:
+            return libsql.connect(database_url)
+        token = auth_token if auth_token is not None else _auth_token_from_env()
+        return libsql.connect(database_url, auth_token=token)
+
+    if is_file_url:
         return sqlite3.connect(_file_url_to_path(database_url))
 
     raise RuntimeError(
