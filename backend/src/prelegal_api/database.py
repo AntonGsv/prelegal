@@ -85,6 +85,11 @@ def init_database(database_url: str) -> None:
     The V1 foundation needs a `users` table (PL-4) and, since PL-7, a
     `documents` table for per-user history. The schema is idempotent and runs at
     application startup and in tests.
+
+    `CREATE TABLE IF NOT EXISTS` does not alter an existing table, so a database
+    created before PL-7 (e.g. the persistent Docker volume) keeps the old
+    `users` shape with no `password_hash` column. `_migrate_add_column` patches
+    that in place so registration/login work without wiping existing data.
     """
 
     _ensure_parent_directory(database_url)
@@ -92,9 +97,29 @@ def init_database(database_url: str) -> None:
     try:
         connection.execute(USERS_SCHEMA)
         connection.execute(DOCUMENTS_SCHEMA)
+        # Added as a nullable column: SQLite cannot add a NOT NULL column to a
+        # table that already has rows without a default. New rows always supply a
+        # hash via `create_user`; any pre-PL-7 rows simply can't authenticate.
+        _migrate_add_column(connection, "users", "password_hash", "TEXT")
         connection.commit()
     finally:
         connection.close()
+
+
+def _table_columns(connection: DatabaseConnection, table: str) -> set[str]:
+    # `table` is always an internal literal, never user input; PRAGMA does not
+    # accept bound parameters for the table name.
+    rows = connection.execute(f"PRAGMA table_info({table})").fetchall()
+    return {row[1] for row in rows}
+
+
+def _migrate_add_column(
+    connection: DatabaseConnection, table: str, column: str, definition: str
+) -> None:
+    """Add `column` to `table` if it does not already exist (idempotent)."""
+
+    if column not in _table_columns(connection, table):
+        connection.execute(f"ALTER TABLE {table} ADD COLUMN {column} {definition}")
 
 
 # --- Query helpers ---------------------------------------------------------

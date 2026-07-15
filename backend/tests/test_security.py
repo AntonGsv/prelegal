@@ -23,6 +23,11 @@ def test_verify_password_rejects_malformed_hash():
     assert security.verify_password("x", "") is False
 
 
+def test_verify_password_rejects_missing_hash():
+    # A pre-PL-7 user row migrated in has a NULL password_hash.
+    assert security.verify_password("x", None) is False
+
+
 def test_token_roundtrips():
     token = security.create_token(42, "user@example.com", "secret", ttl_seconds=60)
 

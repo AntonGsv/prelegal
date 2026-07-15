@@ -39,8 +39,16 @@ def hash_password(password: str) -> str:
     )
 
 
-def verify_password(password: str, stored: str) -> bool:
-    """Check a plaintext password against a `hash_password` string."""
+def verify_password(password: str, stored: str | None) -> bool:
+    """Check a plaintext password against a `hash_password` string.
+
+    Returns ``False`` for a missing/non-string hash — e.g. a pre-PL-7 user row
+    migrated in with a NULL `password_hash` — so such accounts fail cleanly
+    instead of raising.
+    """
+
+    if not isinstance(stored, str):
+        return False
 
     try:
         algorithm, iterations_text, salt_hex, hash_hex = stored.split("$")
